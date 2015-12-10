@@ -37,7 +37,8 @@ public class MainActivity extends Activity
 		//you will probably want to design
 		//your own.
 		outputSetup();
-		
+		System.out.println("Main: findSongs()");
+		findSongs("testing",0);
     }
 
 	@Override
@@ -75,20 +76,35 @@ public class MainActivity extends Activity
 	}
 	
 	public void startPlaying(File mSongs[]) {
+		System.out.println("Start Playing");
+		
 		DadsPlayer mPlayer = new DadsPlayer(mSongs);
-		Intent mIntent = new Intent("Play songs");
-		mPlayer.startService(mIntent);
+		Intent mIntent = new Intent(getApplicationContext(),com.captncript.dadsRadio.DadsPlayer.class);
+		
+		try {
+			startService(mIntent);
+		} catch(Exception e) {
+			System.out.println(e);
+		}
+		
 	}
 	
 	public void findSongs(String mDescriptor, int mFlag) {
 		//This is for only a single descriptor
-		File mSongs[] = null;
+		System.out.println("FindSongs: start");
+		
+		File mSongs[] = new File[10];
+		File mSong = new File("/storage/emulated/0/Ringtones/hangouts_incoming_call.ogg");
 		
 		if(mFlag == ARTIST) {
-			
+			//TODO: make this find songs by artist
+			//name
 		} else if(mFlag == SONG) {
-			
+			//TODO: make this find songs by
+			//song name
 		}
+		
+		mSongs[0] = mSong;
 		
 		startPlaying(mSongs);
 	}
