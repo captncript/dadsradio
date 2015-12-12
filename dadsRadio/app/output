@@ -1,5 +1,8 @@
 Main: findSongs()
+onStart
 FindSongs: start
 Start Playing
-false
+connected
+on the inside
+true
 Closing stream

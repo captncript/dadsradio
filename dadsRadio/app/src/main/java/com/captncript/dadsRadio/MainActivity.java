@@ -27,21 +27,26 @@ public class MainActivity extends Activity
 	
 	
 	private ServiceConnection mConnection = new ServiceConnection() {
-
+		
 		@Override
 		public void onServiceConnected(ComponentName DadsPlayer, IBinder service)
 		{
-
+			System.out.println("connected");
 			DadsPlayer.LocalBinder binder = (DadsPlayer.LocalBinder) service;
 			mDadsPlayer = binder.getService();
 			mBound = true;
 
+			if(mBound){
+				String foo = mDadsPlayer.testing();
+				System.out.println(foo);
+			}
 			System.out.println(mBound);
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName p1)
 		{
+			System.out.println("service disconnected");
 			mBound = false;
 		}
 
@@ -63,9 +68,20 @@ public class MainActivity extends Activity
 		outputSetup();
 		
 		System.out.println("Main: findSongs()");
-		findSongs("testing",0);
     }
 
+	@Override
+	protected void onStart()
+	{
+		super.onStart();
+		
+		System.out.println("onStart");
+		
+		findSongs("testing",0);
+	}
+
+	
+	
 	@Override
 	protected void onRestart() {
 		super.onRestart();
@@ -78,6 +94,11 @@ public class MainActivity extends Activity
 	{
 		System.out.println("Closing stream");
 		pss.close();
+		
+		System.out.println("Unbinding service");
+		if(mBound) {
+			unbindService(mConnection);
+		}
 		
 		super.onStop();
 	}
@@ -111,12 +132,6 @@ public class MainActivity extends Activity
 			bindService(mIntent,mConnection,Context.BIND_AUTO_CREATE);
 		} catch(Exception e) {
 			System.out.println(e);
-		}
-		
-		System.out.println(mBound);
-		if(mBound){
-			String foo = mDadsPlayer.testing();
-			System.out.println(foo);
 		}
 	}
 	
