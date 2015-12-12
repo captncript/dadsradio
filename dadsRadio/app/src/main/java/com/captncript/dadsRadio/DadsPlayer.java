@@ -1,29 +1,42 @@
 package com.captncript.dadsRadio;
+
 import android.app.*;
 import android.media.*;
 import android.os.*;
 import android.content.*;
+import android.widget.*;
+import android.view.*;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.net.URI;
 import java.io.FileNotFoundException;
-import android.widget.*;
+import java.net.URI;
 
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
 MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
+	private final IBinder mIBinder = new LocalBinder();
+	
 	MediaPlayer mp = null;
 	File mSongs[] = new File[10];
+	TextView tv = null;
 	
-	public DadsPlayer(File mSongs[]) {
-		this.mSongs = mSongs;
+	
+	
+	public class LocalBinder extends Binder {
+		DadsPlayer getService() {
+			//This is part of a messaging with the
+			//main activity technique
+			return DadsPlayer.this;
+		}
+	}
+	
+	public DadsPlayer() {
 	}
 
 	@Override
 	public void onStart(Intent intent, int startId)
 	{
-		System.out.println("onStart");
 		// TODO: Implement this method
 		super.onStart(intent, startId);
 		File mSong = new File("/storage/emulated/0/Ringtones/hangouts_incoming_call.ogg");
@@ -35,27 +48,22 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		outputSetup();
-		
-		System.out.println("onStartCommand");
-		
 		// TODO: Implement this method
 		return super.onStartCommand(intent, flags, startId);
 	}
-	
+
 	@Override
 	public void onPrepared(MediaPlayer p1)
 	{
 		// TODO: Implement this method
-		mp.start();
 	}
 
 	@Override
-	public IBinder onBind(Intent p1)
+	public IBinder onBind(Intent mIntent)
 	{
-		//This function has to exist, but I don't
-		//believe we will use it
-		return null;
+		//This returns an iBinder to 
+		//communicate with the main activity
+		return mIBinder;
 	}
 
 	@Override
@@ -73,21 +81,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		//This will play the next song in the succession
 	}
 	
-	private void outputSetup() {
-		//This just sets up an area outside the app to view output
-		try
-		{
-			File mFile = new File("/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output");
-			PrintStream pss = new PrintStream(mFile);
-
-			//This makes System.out.println(string)
-			//Send output to our file
-			System.setOut(pss);
-		}
-		catch (FileNotFoundException e)
-		{
-			
-		}
-
+	public String testing(){
+		return ("on the inside");
 	}
+	
 }

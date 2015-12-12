@@ -16,27 +16,52 @@ public class MainActivity extends Activity
 	//This is the output stream for development uses
 	public PrintStream pss = null;
 	
-	//This is the object used to
-	//interact with the service
-	public DadsPlayer player = null;
-	
 	public static int ARTIST = 1;
 	public static int SONG = 2;
 	
+	EditText et = null;
 	
+	DadsPlayer mDadsPlayer;
+	
+	boolean mBound = false;
+	
+	
+	private ServiceConnection mConnection = new ServiceConnection() {
+
+		@Override
+		public void onServiceConnected(ComponentName DadsPlayer, IBinder service)
+		{
+
+			DadsPlayer.LocalBinder binder = (DadsPlayer.LocalBinder) service;
+			mDadsPlayer = binder.getService();
+			mBound = true;
+
+			System.out.println(mBound);
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName p1)
+		{
+			mBound = false;
+		}
+
+	};
 	
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-		
-		//Runs a setup for outputting
-		//data during development.
-		//This works specifically for me
-		//you will probably want to design
-		//your own.
+		setContentView(R.layout.main);
+		et =  (EditText)findViewById(R.id.display);
+		/*
+		    Runs a setup for outputting
+		    data during development.
+		    This works specifically for me
+		    you will probably want to design
+		    your own.
+		*/
 		outputSetup();
+		
 		System.out.println("Main: findSongs()");
 		findSongs("testing",0);
     }
@@ -66,11 +91,13 @@ public class MainActivity extends Activity
 
 			//This makes System.out.println(string)
 			//Send output to our file
+			et.setText("Successful setup");
 			System.setOut(pss);
 		}
 		catch (FileNotFoundException e)
 		{
 			Log.v("Output setup", e.toString());
+			et.setText("File not found");
 		}
 
 	}
@@ -78,15 +105,19 @@ public class MainActivity extends Activity
 	public void startPlaying(File mSongs[]) {
 		System.out.println("Start Playing");
 		
-		DadsPlayer mPlayer = new DadsPlayer(mSongs);
-		Intent mIntent = new Intent(getApplicationContext(),com.captncript.dadsRadio.DadsPlayer.class);
+		Intent mIntent = new Intent(this,com.captncript.dadsRadio.DadsPlayer.class);
 		
 		try {
-			startService(mIntent);
+			bindService(mIntent,mConnection,Context.BIND_AUTO_CREATE);
 		} catch(Exception e) {
 			System.out.println(e);
 		}
 		
+		System.out.println(mBound);
+		if(mBound){
+			String foo = mDadsPlayer.testing();
+			System.out.println(foo);
+		}
 	}
 	
 	public void findSongs(String mDescriptor, int mFlag) {

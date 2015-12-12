@@ -4,7 +4,7 @@
     android:gravity="center"
 	android:background="#000000">
 
-	<TextView
+	<EditText
 		android:id="@+id/display"
 		android:text="Testing"
 		android:layout_width="wrap_content"
