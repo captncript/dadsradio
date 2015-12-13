@@ -10,6 +10,8 @@ import java.net.URL;
 import android.widget.*;
 import android.content.*;
 import android.media.*;
+import android.view.View.*;
+import android.view.*;
 
 public class MainActivity extends Activity 
 {
@@ -18,10 +20,12 @@ public class MainActivity extends Activity
 	
 	public static int ARTIST = 1;
 	public static int SONG = 2;
+	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output";
 	
 	EditText et = null;
 	
 	DadsPlayer mDadsPlayer;
+	Button mButton = null;
 	
 	boolean mBound = false;
 	
@@ -37,10 +41,20 @@ public class MainActivity extends Activity
 			mBound = true;
 
 			if(mBound){
-				String foo = mDadsPlayer.testing();
-				System.out.println(foo);
+				try{
+					String foo = mDadsPlayer.testing();
+					System.out.println("Errors with prep: " + foo);
+				} catch(Exception e) {
+					System.out.println(e);
+				}
+				
+				boolean isPreped = mDadsPlayer.isPIsPrepared();
+				System.out.println("Media Player Prepped: " + isPreped);
+				
+				String mErr = mDadsPlayer.getASyncError();
+				System.out.println("Async errors: " + mErr);
 			}
-			System.out.println(mBound);
+			System.out.println("bound: " + mBound);
 		}
 
 		@Override
@@ -57,7 +71,10 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
 		et =  (EditText)findViewById(R.id.display);
+		mButton = (Button)findViewById(R.id.button1);
+		
 		/*
 		    Runs a setup for outputting
 		    data during development.
@@ -68,6 +85,7 @@ public class MainActivity extends Activity
 		outputSetup();
 		
 		System.out.println("Main: findSongs()");
+		findSongs("desc",0);
     }
 
 	@Override
@@ -107,7 +125,7 @@ public class MainActivity extends Activity
 		//This just sets up an area outside the app to view output
 		try
 		{
-			File mFile = new File("/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output");
+			File mFile = new File(OUT_FILE_PATH);
 			pss = new PrintStream(mFile);
 
 			//This makes System.out.println(string)
@@ -159,5 +177,9 @@ public class MainActivity extends Activity
 		File mSongs[] = null;
 		
 		startPlaying(mSongs);
+	}
+	
+	public void update(View v) {
+		System.out.println("Song complete: " + mDadsPlayer.getPIsComplete());
 	}
 }
