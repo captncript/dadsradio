@@ -14,7 +14,6 @@ import java.net.URI;
 import java.io.*;
 
 
-//TODO:Move service to its own thread
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
 MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
@@ -24,12 +23,17 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	TextView tv = null;
 	
 	File mSongs[] = new File[10];
+	
 	private boolean pIsPrepared = false;
 	private boolean pIsComplete = false;
 	private String aSyncError = null;
+	
+	//Switch which is commented for your dev
 	private static final String SONG_URI="/storage/emulated/0/Ringtones/hangouts_incoming_call.ogg";
-
-	public boolean isPIsPrepared() {
+	//private static final String SONG_URI="";
+	
+	
+	public boolean getPIsPrepared() {
 		return pIsPrepared;
 	}
 	
@@ -53,10 +57,11 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 
 	@Override
-	public void onPrepared(MediaPlayer p1)
+	public void onPrepared(MediaPlayer mp)
 	{
-		// TODO: Implement this method
 		pIsPrepared = true;
+		
+		//Calls method/function mp not service mp
 		mp.start();
 	}
 
@@ -72,7 +77,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	public boolean onError(MediaPlayer p1, int p2, int p3)
 	{
 		// TODO: Implement this method
-		aSyncError = "There was an error";
+		aSyncError = "onError: error caught by listener";
 		return false;
 	}
 
@@ -81,6 +86,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	{
 		// TODO: Implement this method
 		//This will play the next song in the succession
+		//Probably use a second media player to chain songs
 		
 		pIsComplete = true;
 	}
@@ -92,8 +98,10 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		
 		mSongs[0] = mSong;
 		
+		//Initialize mp
 		mp = new MediaPlayer();
 		
+		//Setup Listeners
 		mp.setOnErrorListener(this);
 		mp.setOnPreparedListener(this);
 		mp.setOnCompletionListener(this);

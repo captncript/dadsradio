@@ -13,6 +13,13 @@ import android.media.*;
 import android.view.View.*;
 import android.view.*;
 
+/*
+   -Still required play songs back to back
+   -Add basic radio playing functions
+   -Find music in system
+   -Decide if music should be found in its own thread
+*/
+
 public class MainActivity extends Activity 
 {
 	//This is the output stream for development uses
@@ -20,7 +27,16 @@ public class MainActivity extends Activity
 	
 	public static int ARTIST = 1;
 	public static int SONG = 2;
+	
+	/*
+	. Below this you will see 2 of the same variable
+	  mine should be commented out and yours uncommented
+	  when you are developing. This changes the destination of 
+	  all System.out.println() calls
+	*/
 	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output";
+	//private static final String OUT_FILE_PATH = "";
+	
 	
 	EditText et = null;
 	
@@ -40,20 +56,20 @@ public class MainActivity extends Activity
 			mDadsPlayer = binder.getService();
 			mBound = true;
 
-			if(mBound){
-				try{
-					String foo = mDadsPlayer.testing();
-					System.out.println("Errors with prep: " + foo);
-				} catch(Exception e) {
-					System.out.println(e);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try{
+						String foo = mDadsPlayer.testing();
+						System.out.println("Errors with prep: " + foo);
+					} catch(Exception e) {
+						System.out.println(e);
+					}
 				}
+			}).start();
 				
-				boolean isPreped = mDadsPlayer.isPIsPrepared();
-				System.out.println("Media Player Prepped: " + isPreped);
-				
-				String mErr = mDadsPlayer.getASyncError();
-				System.out.println("Async errors: " + mErr);
-			}
+			String mErr = mDadsPlayer.getASyncError();
+			System.out.println("Async errors: " + mErr);
 			System.out.println("bound: " + mBound);
 		}
 
@@ -85,7 +101,6 @@ public class MainActivity extends Activity
 		outputSetup();
 		
 		System.out.println("Main: findSongs()");
-		findSongs("desc",0);
     }
 
 	@Override
@@ -93,7 +108,7 @@ public class MainActivity extends Activity
 	{
 		super.onStart();
 		
-		System.out.println("onStart");
+		System.out.println("Main: onStart");
 		
 		findSongs("testing",0);
 	}
@@ -141,7 +156,7 @@ public class MainActivity extends Activity
 
 	}
 	
-	public void startPlaying(File mSongs[]) {
+	public void startPlaying() {
 		System.out.println("Start Playing");
 		
 		Intent mIntent = new Intent(this,com.captncript.dadsRadio.DadsPlayer.class);
@@ -157,9 +172,6 @@ public class MainActivity extends Activity
 		//This is for only a single descriptor
 		System.out.println("FindSongs: start");
 		
-		File mSongs[] = new File[10];
-		File mSong = new File("/storage/emulated/0/Ringtones/hangouts_incoming_call.ogg");
-		
 		if(mFlag == ARTIST) {
 			//TODO: make this find songs by artist
 			//name
@@ -168,15 +180,12 @@ public class MainActivity extends Activity
 			//song name
 		}
 		
-		mSongs[0] = mSong;
-		
-		startPlaying(mSongs);
+		startPlaying();
 	}
 	
 	public void findSongs(String mDescriptors[]) {
-		File mSongs[] = null;
 		
-		startPlaying(mSongs);
+		startPlaying();
 	}
 	
 	public void update(View v) {

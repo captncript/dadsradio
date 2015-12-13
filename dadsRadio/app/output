@@ -1,13 +1,9 @@
-Main: findSongs()
-FindSongs: start
-Start Playing
-onStart
+Main: onStart
 FindSongs: start
 Start Playing
 connected
-Errors with prep: null
-Media Player Prepped: false
 Async errors: null
 bound: true
+Errors with prep: null
 Song complete: true
 Closing stream
