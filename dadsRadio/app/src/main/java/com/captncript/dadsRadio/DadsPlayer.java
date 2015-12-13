@@ -27,6 +27,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	private boolean pIsPrepared = false;
 	private boolean pIsComplete = false;
 	private String aSyncError = null;
+	private static final String SONG_URI="/storage/emulated/0/Ringtones/hangouts_incoming_call.ogg";
 
 	public boolean isPIsPrepared() {
 		return pIsPrepared;
@@ -49,20 +50,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	public DadsPlayer() {
-	}
-	
-	@Override
-	public void onStart(Intent intent, int startId)
-	{
-		// TODO: Implement this method
-		super.onStart(intent, startId);
-	}
-
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId)
-	{
-		// TODO: Implement this method
-		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
@@ -99,7 +86,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	public String testing(){
-		File mSong = new File("/storage/emulated/0/Ringtones/hangouts_incoming_call.ogg");
+		File mSong = new File(SONG_URI);
 		String mPrepped = null;
 		
 		
