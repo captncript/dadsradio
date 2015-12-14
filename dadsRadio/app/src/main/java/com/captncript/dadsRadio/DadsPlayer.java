@@ -19,7 +19,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	private final IBinder mIBinder = new LocalBinder();
 	
-	MediaPlayer mp = null;
+	MediaPlayer mp1 = null;
+	MediaPlayer mp2 = null;
 	TextView tv = null;
 	
 	File mSongs[] = new File[10];
@@ -30,6 +31,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	//Switch which is commented for your dev
 	private static final String SONG_URI="/storage/emulated/0/Ringtones/hangouts_incoming_call.ogg";
+	private static final String SONG_URI2="/storage/emulated/0/Ringtones/hangouts_message.ogg";
 	//private static final String SONG_URI="";
 	
 	
@@ -88,7 +90,21 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		//This will play the next song in the succession
 		//Probably use a second media player to chain songs
 		
-		pIsComplete = true;
+		if(pIsComplete) {
+			//Implement this function to release media players
+			//also consider unbinding from
+			//cleanup();
+		} else {
+			if(p1.equals(mp1)) {
+				//Make this run mp2s song0
+				mp2.start();
+				mp1.reset();
+			} else {
+				//Make this run mp1s song
+				mp1.start();
+				mp2.reset();
+			}
+		}
 	}
 	
 	public String testing(){
@@ -97,19 +113,31 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		
 		
 		mSongs[0] = mSong;
+		mSongs[1] = new File(SONG_URI2);
 		
-		//Initialize mp
-		mp = new MediaPlayer();
+		//Initialize mp1
+		mp1 = new MediaPlayer();
 		
-		//Setup Listeners
-		mp.setOnErrorListener(this);
-		mp.setOnPreparedListener(this);
-		mp.setOnCompletionListener(this);
-		
+		//Setup mp1 Listeners
+		mp1.setOnErrorListener(this);
+		mp1.setOnPreparedListener(this);
+		mp1.setOnCompletionListener(this);
+
+		//Initialize mp2
+		mp2 = new MediaPlayer();
+
+		//Setup mp2 Listeners
+		mp2.setOnErrorListener(this);
+		mp2.setOnPreparedListener(this);
+		mp2.setOnCompletionListener(this);
+
+
 		try
 		{
-			mp.setDataSource(this, android.net.Uri.parse(mSongs[0].toString()));
-			mp.prepare();
+			mp1.setDataSource(this, android.net.Uri.parse(mSongs[0].toString()));
+			mp1.prepare();
+			mp2.setDataSource(this, android.net.Uri.parse(mSongs[1].toString()));
+			mp2.prepare();
 		}
 		catch (SecurityException e)
 		{
