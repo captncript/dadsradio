@@ -55,24 +55,32 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		}
 	}
 	
-	public DadsPlayer() {
-	}
-
-	@Override
-	public void onPrepared(MediaPlayer mp)
-	{
-		pIsPrepared = true;
-		
-		//Calls method/function mp not service mp
-		mp.start();
-	}
-
 	@Override
 	public IBinder onBind(Intent mIntent)
 	{
 		//This returns an iBinder to 
 		//communicate with the main activity
 		return mIBinder;
+	}
+	
+	public DadsPlayer() {
+	}
+	
+	@Override
+	public void onPrepared(MediaPlayer mp)
+	{
+		pIsPrepared = true;
+		System.out.println("onPrepared");
+		//Calls method/function mp not service mp
+		if(mp != null && mp.equals(mp1)) {
+			System.out.println("mp equals mp1");
+		} else if(mp != null && mp.equals(mp2)) {
+			System.out.println("mp equals mp2");
+		} else {
+			System.out.println("Media player equation issues");
+		}
+		
+		mp.start();
 	}
 
 	@Override
@@ -84,28 +92,44 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 
 	@Override
-	public void onCompletion(MediaPlayer p1)
+	public void onCompletion(MediaPlayer mp)
 	{
-		// TODO: Implement this method
+		// TODO: Fix this
 		//This will play the next song in the succession
 		//Probably use a second media player to chain songs
+		System.out.println("onCompletion");
 		
-		if(pIsComplete) {
+		try {
+			//SystemClock.sleep(1000);
+		}
+		catch (Exception e) {
+			System.out.println(e);
+		}
+		
+		try {
+			if(pIsComplete) {
 			//Implement this function to release media players
 			//also consider unbinding from
 			//cleanup();
-		} else {
-			if(p1.equals(mp1)) {
-				//Make this run mp2s song0
-				mp2.start();
-				mp1.reset();
 			} else {
-				//Make this run mp1s song
-				mp1.start();
-				mp2.reset();
+				if(mp.equals(mp1)) {
+					//Make this run mp2s song0
+					System.out.println("starting second sound");
+					mp2.prepare();
+					mp1.stop();
+				} else if(mp.equals(mp2)) {
+					//Make this run mp1s song
+					System.out.println("Starting first sound");
+					mp1.prepare();
+					mp2.stop();
+				}
+				
+			}
+				
+			} catch(Exception e) {
+				System.out.println(e);
 			}
 		}
-	}
 	
 	public String testing(){
 		File mSong = new File(SONG_URI);
@@ -137,7 +161,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			mp1.setDataSource(this, android.net.Uri.parse(mSongs[0].toString()));
 			mp1.prepare();
 			mp2.setDataSource(this, android.net.Uri.parse(mSongs[1].toString()));
-			mp2.prepare();
 		}
 		catch (SecurityException e)
 		{
@@ -156,7 +179,29 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			mPrepped = "IO: " + e.toString();
 		}
 
+		//TODO:Check if this is thread safe
 		return (mPrepped);
+	}
+	
+	public void cleanUp() {
+		System.out.println("DadsPlayer: cleanUp");
+		if(mp1 != null) {
+			mp1.release();
+		}
+		if(mp2 != null) {
+			mp2.release();
+		}
+		
+		try
+		{
+			Thread.currentThread().join();
+		}
+		catch (InterruptedException e)
+		{
+			System.out.println("Interrupted: " + e.toString());
+		}
+
+		System.out.println("DadsPlayer: clean");
 	}
 	
 }

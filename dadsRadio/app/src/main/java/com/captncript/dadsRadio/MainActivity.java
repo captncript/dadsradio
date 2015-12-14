@@ -62,7 +62,9 @@ public class MainActivity extends Activity
 				public void run() {
 					try{
 						String foo = mDadsPlayer.testing();
-						System.out.println("Errors with prep: " + foo);
+						if(foo != null) {
+							System.out.println("Errors with prep: " + foo);
+						}
 					} catch(Exception e) {
 						System.out.println(e);
 					}
@@ -70,7 +72,9 @@ public class MainActivity extends Activity
 			}).start();
 				
 			String mErr = mDadsPlayer.getASyncError();
-			System.out.println("Async errors: " + mErr);
+			if(mErr != null) {
+				System.out.println("Async errors: " + mErr);
+			}
 			System.out.println("bound: " + mBound);
 		}
 
@@ -79,6 +83,7 @@ public class MainActivity extends Activity
 		{
 			System.out.println("service disconnected");
 			mBound = false;
+			et.setText("Service Disconnected");
 		}
 
 	};
@@ -126,13 +131,17 @@ public class MainActivity extends Activity
 	@Override
 	protected void onStop()
 	{
-		System.out.println("Closing stream");
-		pss.close();
-		
 		System.out.println("Unbinding service");
 		if(mBound) {
-			unbindService(mConnection);
+			try{
+				unbindService(mConnection);
+			} catch(Exception e) {
+				System.out.println(e);
+			}
 		}
+		
+		System.out.println("Closing stream");
+		pss.close();
 		
 		super.onStop();
 	}
@@ -191,5 +200,23 @@ public class MainActivity extends Activity
 	
 	public void update(View v) {
 		System.out.println("Song complete: " + mDadsPlayer.getPIsComplete());
+	}
+	
+	public void cleanUp(View v) {
+		System.out.println("Main:cleanUp");
+		et.setText("Cleaning up");
+		//This releases all remaining
+		//media players
+		try {
+		mDadsPlayer.cleanUp();
+		
+		if(mBound) {
+			unbindService(mConnection);
+		}
+		System.out.println("Main:Clean");
+		}catch(Exception e) {
+			System.out.println("cleanup: " + e.toString());
+		}
+		et.setText("Clean");
 	}
 }
