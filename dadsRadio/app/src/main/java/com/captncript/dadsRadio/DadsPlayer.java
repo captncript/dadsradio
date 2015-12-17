@@ -23,19 +23,23 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	MediaPlayer mp2 = null;
 	TextView tv = null;
 	
+	//Use a linked list instead?
 	File mSongs[] = new File[10];
 	
 	private boolean pIsPrepared = false;
 	private boolean pIsComplete = false;
 	private String aSyncError = null;
 	
-	//Switch which is commented for your dev
-	private static final String SONG_URI="/storage/emulated/0/Ringtones/hangouts_incoming_call.ogg";
-	private static final String SONG_URI2="/storage/emulated/0/Ringtones/hangouts_message.ogg";
+	//Switch which is commented for your dev  
+	private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5";
+	private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5";
 	//private static final String SONG_URI="";
 	
+	public int songPlaying = 0;
 	
 	public boolean getPIsPrepared() {
+		//This is for testing can
+		//probably be removed when finished
 		return pIsPrepared;
 	}
 	
@@ -45,6 +49,14 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	public String getASyncError() {
 		return aSyncError;
+	}
+	
+	public void setMSongs(File mSongs[]) {
+		if (mSongs.length <= 10){
+			this.mSongs = mSongs;
+		} else {
+			System.out.println("Too many songs!!!");
+		}
 	}
 	
 	public class LocalBinder extends Binder {
@@ -99,35 +111,82 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		//Probably use a second media player to chain songs
 		System.out.println("onCompletion");
 		
-		try {
-			//SystemClock.sleep(1000);
-		}
-		catch (Exception e) {
-			System.out.println(e);
-		}
-		
-		try {
-			if(pIsComplete) {
-			//Implement this function to release media players
-			//also consider unbinding from
-			//cleanup();
-			} else {
-				if(mp.equals(mp1)) {
-					//Make this run mp2s song0
-					System.out.println("starting second sound");
-					mp2.prepare();
-					mp1.stop();
-				} else if(mp.equals(mp2)) {
-					//Make this run mp1s song
-					System.out.println("Starting first sound");
-					mp1.prepare();
-					mp2.stop();
+		if(pIsComplete) {
+		//Implement this function to release media players
+		cleanUp();
+		} else {
+			if(mp.equals(mp1)) {
+				System.out.println("starting second sound");
+				//Repeated make it a function?
+				songPlaying = 0; //Only here for testing
+				songPlaying++;
+					
+				try {
+					mp2.reset();
+					mp2.setDataSource(this, android.net.Uri.parse(mSongs[songPlaying].toString()));
+				}
+				catch (SecurityException e) {
+					System.out.println("mp2 set security: " + e.toString());
+				}
+				catch (IllegalArgumentException e) {
+					System.out.println("mp2 set illegalArgument: " + e.toString());
+				}
+				catch (IllegalStateException e) {
+					System.out.println("mp2 set IllegalState: " + e.toString());
+				}
+				catch (IOException e) {
+					System.out.println("mp2 set io: " + e.toString());
 				}
 				
+				try {
+					mp2.prepare();
+				}
+				catch (IllegalStateException e) {
+					System.out.println("mp2 prepare: " + e.toString());
+				}
+				catch (IOException e) {
+					System.out.println("mp2 prepare: " + e.toString());
+				}
+				mp1.stop();
+			} else if(mp.equals(mp2)) {
+				System.out.println("Starting first sound");
+				songPlaying = -1; //Only here for testing
+				songPlaying++;
+				try {
+					mp1.reset();
+					mp1.setDataSource(this, android.net.Uri.parse(mSongs[songPlaying].toString()));
+				}
+				catch (SecurityException e)
+				{
+					System.out.println("mp1 set: " + e.toString());
+				}
+				catch (IllegalArgumentException e)
+				{
+					System.out.println("mp1 set: " + e.toString());
+				}
+				catch (IllegalStateException e)
+				{
+					System.out.println("mp1 set: " + e.toString());
+				}
+				catch (IOException e)
+				{
+					System.out.println("mp1 set: " + e.toString());
+				}
+				try
+				{
+					mp1.prepare();
+				}
+				catch (IllegalStateException e)
+				{
+					System.out.println("mp1 prepare: " + e.toString());
+				}
+				catch (IOException e)
+				{
+					System.out.println("mp1 prepare: " + e.toString());
+				}
+				mp2.stop();
 			}
 				
-			} catch(Exception e) {
-				System.out.println(e);
 			}
 		}
 	
@@ -135,7 +194,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		File mSong = new File(SONG_URI);
 		String mPrepped = null;
 		
-		
+//		for(String item : mSong.list()){
+//			System.out.println(item);
+//		}
 		mSongs[0] = mSong;
 		mSongs[1] = new File(SONG_URI2);
 		
@@ -160,7 +221,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		{
 			mp1.setDataSource(this, android.net.Uri.parse(mSongs[0].toString()));
 			mp1.prepare();
-			mp2.setDataSource(this, android.net.Uri.parse(mSongs[1].toString()));
 		}
 		catch (SecurityException e)
 		{
@@ -187,9 +247,11 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		System.out.println("DadsPlayer: cleanUp");
 		if(mp1 != null) {
 			mp1.release();
+			mp1 = null;
 		}
 		if(mp2 != null) {
 			mp2.release();
+			mp2 = null;
 		}
 		
 		try

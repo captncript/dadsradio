@@ -141,7 +141,7 @@ public class MainActivity extends Activity
 		}
 		
 		System.out.println("Closing stream");
-		pss.close();
+		//pss.close();
 		
 		super.onStop();
 	}

@@ -5,53 +5,5 @@ connected
 bound: true
 onPrepared
 mp equals mp1
-onCompletion
-starting second sound
-onPrepared
-mp equals mp2
-onCompletion
-Starting first sound
-onPrepared
-mp equals mp1
-onCompletion
-starting second sound
-onPrepared
-mp equals mp2
-onCompletion
-Starting first sound
-onPrepared
-mp equals mp1
-onCompletion
-starting second sound
-onPrepared
-mp equals mp2
-onCompletion
-Starting first sound
-onPrepared
-mp equals mp1
-onCompletion
-starting second sound
-onPrepared
-mp equals mp2
-onCompletion
-Starting first sound
-onPrepared
-mp equals mp1
-onCompletion
-starting second sound
-onPrepared
-mp equals mp2
-onCompletion
-Starting first sound
-onPrepared
-mp equals mp1
-onCompletion
-starting second sound
-onPrepared
-mp equals mp2
-onCompletion
-Starting first sound
-onPrepared
-mp equals mp1
 Main:cleanUp
 DadsPlayer: cleanUp
