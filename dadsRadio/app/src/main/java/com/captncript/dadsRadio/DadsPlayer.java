@@ -37,6 +37,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	public int songPlaying = 0;
 	
+	private boolean isM1Playing = false;
+	private boolean isM2Playing = false;
+	
 	public boolean getPIsPrepared() {
 		//This is for testing can
 		//probably be removed when finished
@@ -86,8 +89,12 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		//Calls method/function mp not service mp
 		if(mp != null && mp.equals(mp1)) {
 			System.out.println("mp equals mp1");
+			isM1Playing = true;
+			isM2Playing = false;
 		} else if(mp != null && mp.equals(mp2)) {
 			System.out.println("mp equals mp2");
+			isM1Playing = false;
+			isM2Playing = true;
 		} else {
 			System.out.println("Media player equation issues");
 		}
@@ -190,6 +197,16 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			}
 		}
 	
+	public void pause() {
+		if(isM1Playing) {
+			System.out.println("Pausing mp1");
+			mp1.pause();
+		} else if(isM2Playing) {
+			System.out.println("Pausing mp2");
+			mp2.pause();
+		}
+	}
+		
 	public String testing(){
 		File mSong = new File(SONG_URI);
 		String mPrepped = null;

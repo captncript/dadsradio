@@ -96,7 +96,6 @@ public class MainActivity extends Activity
 		setContentView(R.layout.main);
 		
 		et =  (EditText)findViewById(R.id.display);
-		mButton = (Button)findViewById(R.id.button1);
 		
 		/*
 		    Runs a setup for outputting
@@ -115,8 +114,6 @@ public class MainActivity extends Activity
 		super.onStart();
 		
 		System.out.println("Main: onStart");
-		
-		findSongs("testing",0);
 	}
 
 	
@@ -141,7 +138,7 @@ public class MainActivity extends Activity
 		}
 		
 		System.out.println("Closing stream");
-		//pss.close();
+		pss.close();
 		
 		super.onStop();
 	}
@@ -198,8 +195,8 @@ public class MainActivity extends Activity
 		startPlaying();
 	}
 	
-	public void update(View v) {
-		System.out.println("Song complete: " + mDadsPlayer.getPIsComplete());
+	public void play(View v) {
+		findSongs("test",0);
 	}
 	
 	public void cleanUp(View v) {
@@ -218,5 +215,11 @@ public class MainActivity extends Activity
 			System.out.println("cleanup: " + e.toString());
 		}
 		et.setText("Clean");
+	}
+	
+	public void pause(View v) {
+		if(mBound) {
+			mDadsPlayer.pause();
+		}
 	}
 }

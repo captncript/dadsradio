@@ -11,14 +11,26 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" 
 		android:background="#ffffff" />
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center" 
+		android:orientation="horizontal" >
+		<Button
+			android:id="@+id/play"
+			android:text="Play"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:onClick="play" />
+		<Button
+			android:id="@+id/pause"
+			android:text="Pause"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:onClick="pause"/>
+	</LinearLayout>
 	<Button
-		android:id="@+id/button1"
-		android:text="update"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" 
-		android:onClick="update" />
-	<Button
-		android:id="@+id/button2"
+		android:id="@+id/button3"
 		android:text="Clean Up"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" 
