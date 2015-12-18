@@ -26,19 +26,25 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	//Use a linked list instead?
 	File mSongs[] = new File[10];
 	
-	private boolean pIsPrepared = false;
 	private boolean pIsComplete = false;
+	private boolean pIsPaused = false;
+	private boolean pIsPrepared = false;
+	
 	private String aSyncError = null;
 	
-	//Switch which is commented for your dev  
+	//Switch which is commented for your development
 	private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5";
 	private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5";
 	//private static final String SONG_URI="";
 	
+	
+	private static final int PAUSE = 0;
 	public int songPlaying = 0;
 	
 	private boolean isM1Playing = false;
 	private boolean isM2Playing = false;
+	
+	private Handler pHandler = null;
 	
 	public boolean getPIsPrepared() {
 		//This is for testing can
@@ -75,6 +81,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	{
 		//This returns an iBinder to 
 		//communicate with the main activity
+	
 		return mIBinder;
 	}
 	
@@ -200,10 +207,18 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	public void pause() {
 		if(isM1Playing) {
 			System.out.println("Pausing mp1");
+			pIsPaused = true;
 			mp1.pause();
 		} else if(isM2Playing) {
 			System.out.println("Pausing mp2");
 			mp2.pause();
+			pIsPaused = true;
+		}
+		try {
+		Message msg = Message.obtain(pHandler, PAUSE);
+		msg.sendToTarget();
+		} catch(Exception e) {
+			System.out.println("Pause: " + e);
 		}
 	}
 		
@@ -258,6 +273,10 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
 		//TODO:Check if this is thread safe
 		return (mPrepped);
+	}
+	
+	public void setHandler(Handler mHandler) {
+		this.pHandler = mHandler;
 	}
 	
 	public void cleanUp() {

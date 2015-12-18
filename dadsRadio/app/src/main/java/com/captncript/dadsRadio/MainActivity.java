@@ -15,23 +15,28 @@ import android.view.View.*;
 import android.view.*;
 
 /*
+	For Nick
+	
+	
    -Still required play songs back to back
    -Add basic radio playing functions
    -Find music in system
    -Decide if music should be found in its own thread
 */
 
-public class MainActivity extends Activity 
+public class MainActivity extends Activity
 {
-	//This is the output stream for development uses
+	//DAD NOTE: This is the output stream for development uses
 	public PrintStream pss = null;
 	
-	public static int ARTIST = 1;
-	public static int SONG = 2;
+	public static final int ARTIST = 1;
+	public static final int SONG = 2;
+	public static final int PAUSE = 0;
 	
 	/*
-	. Below this you will see 2 of the same variable
-	  mine should be commented out and yours uncommented
+	  DAD NOTE:
+	  Below this you will see 2 of the same variable
+	  Nick's should be commented out and Chris' uncommented
 	  when you are developing. This changes the destination of 
 	  all System.out.println() calls
 	*/
@@ -39,12 +44,18 @@ public class MainActivity extends Activity
 	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output";
 	
 	
+	
+	//DAD NOTE: This variable will hold the text box
 	EditText et = null;
 	
 	DadsPlayer mDadsPlayer;
 	Button mButton = null;
 	
+	//DAD NOTE: This variable being true means that
+	//we have a connection to the service(DadsPlayer.java)
 	boolean mBound = false;
+	
+	private Handler mHandler = null;
 	
 	
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -56,7 +67,9 @@ public class MainActivity extends Activity
 			DadsPlayer.LocalBinder binder = (DadsPlayer.LocalBinder) service;
 			mDadsPlayer = binder.getService();
 			mBound = true;
-
+			mDadsPlayer.setHandler(mHandler);
+			
+			
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -196,6 +209,16 @@ public class MainActivity extends Activity
 	}
 	
 	public void play(View v) {
+		mHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				switch(msg.what) {
+					case PAUSE:
+						et.setText("Paused");
+				}
+			}
+		};
+		
 		findSongs("test",0);
 	}
 	
