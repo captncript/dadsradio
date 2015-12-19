@@ -6,5 +6,8 @@ bound: true
 onPrepared
 mp equals mp1
 Pausing mp1
-Unbinding service
-Closing stream
+Pausing mp1
+Pausing mp1
+Pausing mp1
+Main:cleanUp
+DadsPlayer: cleanUp

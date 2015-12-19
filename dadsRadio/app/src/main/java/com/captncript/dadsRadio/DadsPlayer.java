@@ -27,7 +27,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	File mSongs[] = new File[10];
 	
 	private boolean pIsComplete = false;
-	private boolean pIsPaused = false;
+	private boolean pIsM1Paused = false;
+	private boolean pIsM2Paused = false;
 	private boolean pIsPrepared = false;
 	
 	private String aSyncError = null;
@@ -120,14 +121,11 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	@Override
 	public void onCompletion(MediaPlayer mp)
 	{
-		// TODO: Fix this
 		//This will play the next song in the succession
-		//Probably use a second media player to chain songs
 		System.out.println("onCompletion");
 		
 		if(pIsComplete) {
-		//Implement this function to release media players
-		cleanUp();
+			cleanUp();
 		} else {
 			if(mp.equals(mp1)) {
 				System.out.println("starting second sound");
@@ -205,21 +203,30 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		}
 	
 	public void pause() {
+		Message msg = null;
+		
 		if(isM1Playing) {
 			System.out.println("Pausing mp1");
-			pIsPaused = true;
+			pIsM1Paused = true;
+			isM1Playing = false;
 			mp1.pause();
 		} else if(isM2Playing) {
 			System.out.println("Pausing mp2");
 			mp2.pause();
-			pIsPaused = true;
+			pIsM2Paused = true;
+			isM2Playing = false;
+		} else if(pIsM1Paused) {
+			mp1.start();
+			pIsM1Paused = false;
+			isM1Playing = true;
+		} else if(pIsM2Paused) {
+			mp2.start();
+			pIsM2Paused = false;
+			isM2Playing = true;
 		}
-		try {
-		Message msg = Message.obtain(pHandler, PAUSE);
+		
+		msg = Message.obtain(pHandler, PAUSE);
 		msg.sendToTarget();
-		} catch(Exception e) {
-			System.out.println("Pause: " + e);
-		}
 	}
 		
 	public String testing(){

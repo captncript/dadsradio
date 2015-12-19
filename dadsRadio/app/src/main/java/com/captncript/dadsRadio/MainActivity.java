@@ -40,13 +40,14 @@ public class MainActivity extends Activity
 	  when you are developing. This changes the destination of 
 	  all System.out.println() calls
 	*/
-	//private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/DadsRadio2/dadsradio/dadsRadio/app/output";
+	//private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/Captncript/dadsRadio/app/output";
 	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output";
 	
 	
 	
 	//DAD NOTE: This variable will hold the text box
 	EditText et = null;
+	private Button pPauseButton = null;
 	
 	DadsPlayer mDadsPlayer;
 	Button mButton = null;
@@ -54,6 +55,7 @@ public class MainActivity extends Activity
 	//DAD NOTE: This variable being true means that
 	//we have a connection to the service(DadsPlayer.java)
 	boolean mBound = false;
+	boolean mIsPaused = false;
 	
 	private Handler mHandler = null;
 	
@@ -109,8 +111,9 @@ public class MainActivity extends Activity
 		setContentView(R.layout.main);
 		
 		et =  (EditText)findViewById(R.id.display);
-		
+		pPauseButton = (Button)findViewById(R.id.pause);
 		/*
+		    D
 		    Runs a setup for outputting
 		    data during development.
 		    This works specifically for me
@@ -214,7 +217,15 @@ public class MainActivity extends Activity
 			public void handleMessage(Message msg) {
 				switch(msg.what) {
 					case PAUSE:
-						et.setText("Paused");
+						if(!mIsPaused) {
+							et.setText("Paused");
+							pPauseButton.setText("Resume Playing");
+							mIsPaused = true;
+						} else {
+							et.setText("Playing");
+							pPauseButton.setText("Pause");
+							mIsPaused = false;
+						}
 				}
 			}
 		};
@@ -242,7 +253,7 @@ public class MainActivity extends Activity
 	
 	public void pause(View v) {
 		if(mBound) {
-			mDadsPlayer.pause();
+				mDadsPlayer.pause();
 		}
 	}
 }
