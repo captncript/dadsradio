@@ -40,8 +40,8 @@ public class MainActivity extends Activity
 	  when you are developing. This changes the destination of 
 	  all System.out.println() calls
 	*/
-	//private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/DadsRadio2/dadsradio/dadsRadio/app/output";
-	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output";
+	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/DadsRadio/dadsradio/app/output";
+	//private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output";
 	
 	
 	

@@ -3,8 +3,6 @@ FindSongs: start
 Start Playing
 connected
 bound: true
-onPrepared
-mp equals mp1
-Pausing mp1
+Errors with prep: IO: java.io.IOException: setDataSource failed.
 Unbinding service
 Closing stream
