@@ -279,9 +279,8 @@ public class MainActivity extends Activity
 	//Below is a grouping of test functions
 	private void indexMusic() {
 		System.out.println("Indexing");
-		//TODO: Build an indexer
+		//TODO: Make this store data somewhere
 		//      Come up with conditions to run this
-		//      Maybe make a custom handler just for indexing?
 		final Handler mIndexHandler = new Handler() {
 			public void handleMessage(Message msg) {
 				try {
@@ -291,10 +290,10 @@ public class MainActivity extends Activity
 						//String mIndexes[] = mBundle.getStringArray("Files");
 						
 						ArrayList<String> mIndex = mBundle.getStringArrayList("Files");
-//						for(String s: mIndexes) {
-//							System.out.println(s);
-//						}
-				
+						for(String s: mIndex) {
+							System.out.println(s);
+						}
+						//System.out.println(msg.arg1);
 						et.setText("index complete");
 					break;
 					case 1:
@@ -314,9 +313,30 @@ public class MainActivity extends Activity
 		
 		new Thread(new Runnable() {
 			ArrayList<String> mIndexes = new ArrayList();
+			ArrayList<String> mIndexDirs = new ArrayList();
+			ArrayList<String> mDirs = new ArrayList();
+			
 			Bundle mBundle = new Bundle();
 			
 			int mCounter = 0;
+			int mDirCount = 0;
+			
+			String lastDir = new String();
+			
+			boolean once = true;
+			
+			FilenameFilter filter = new FilenameFilter() {
+				@Override
+				public boolean accept(File p1, String name) {
+					String lowerName = name.toLowerCase();
+					
+					if(lowerName.endsWith(".mp3")) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			};
 			
 			@Override
 			public void run() {
@@ -331,8 +351,9 @@ public class MainActivity extends Activity
 				}
 				System.out.println("crawled");
 				try {
-					mBundle.putStringArrayList("Files",mIndexes);
+					mBundle.putStringArrayList("Files",mIndexDirs);
 					Message mMessage = Message.obtain(mIndexHandler, 0);
+					mMessage.arg1 = mCounter;
 					mMessage.setData(mBundle);
 					mMessage.sendToTarget();
 				}catch(Exception e) {
@@ -355,16 +376,31 @@ public class MainActivity extends Activity
 					files.
 				*/
 				File mFiles[] = null;
+				File indexFiles[] = null;
 				
 				if(mFile != null) {
 					mFiles = mFile.listFiles();
+					indexFiles = mFile.listFiles(filter);
 				}
 				
 				if (mFiles != null) {
 					for(File f: mFiles) {
+						if(f.isDirectory()) {
+							mDirs.add(f.toString());
+							mDirCount++;
+						}
 						mIndexes.add(f.toString());
-					
+						mCounter++;
 						fileCrawler(f);
+					}
+				}
+				if(indexFiles != null) {
+					for(File f : indexFiles) {
+						String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
+						if(!mPathToFile.equals(lastDir)) {
+							mIndexDirs.add(mPathToFile);
+							lastDir = mPathToFile;
+						}
 					}
 				}
 			}
