@@ -13,15 +13,23 @@ import android.content.*;
 import android.media.*;
 import android.view.View.*;
 import android.view.*;
+import android.provider.MediaStore;
+import java.util.*;
 
 /*
-	For Nick
+	TODO:
 	
-	
-   -Still required play songs back to back
-   -Add basic radio playing functions
+   -Add basic radio playing functions(seek, next song, previous song, volume)
    -Find music in system
    -Decide if music should be found in its own thread
+   -Make play button resume songs instead of pause button
+   -Change buttons to symbols
+   -Add voice control
+*/
+
+/*
+    Going to attempt a folder indexer
+    for faster searching of music
 */
 
 public class MainActivity extends Activity
@@ -32,6 +40,7 @@ public class MainActivity extends Activity
 	public static final int ARTIST = 1;
 	public static final int SONG = 2;
 	public static final int PAUSE = 0;
+	public static final int REQUEST_MEDIA = 3;
 	
 	/*
 	  DAD NOTE:
@@ -59,6 +68,8 @@ public class MainActivity extends Activity
 	
 	private Handler mHandler = null;
 	
+	private File pSong = null;
+	
 	
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
@@ -70,21 +81,6 @@ public class MainActivity extends Activity
 			mDadsPlayer = binder.getService();
 			mBound = true;
 			mDadsPlayer.setHandler(mHandler);
-			
-			
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try{
-						String foo = mDadsPlayer.testing();
-						if(foo != null) {
-							System.out.println("Errors with prep: " + foo);
-						}
-					} catch(Exception e) {
-						System.out.println(e);
-					}
-				}
-			}).start();
 				
 			String mErr = mDadsPlayer.getASyncError();
 			if(mErr != null) {
@@ -112,8 +108,12 @@ public class MainActivity extends Activity
 		
 		et =  (EditText)findViewById(R.id.display);
 		pPauseButton = (Button)findViewById(R.id.pause);
+		
+		//pulled binding to creation
+		startBinding();
+		
 		/*
-		    D
+		    DAD NOTE:
 		    Runs a setup for outputting
 		    data during development.
 		    This works specifically for me
@@ -125,19 +125,10 @@ public class MainActivity extends Activity
     }
 
 	@Override
-	protected void onStart()
-	{
-		super.onStart();
-		
-		System.out.println("Main: onStart");
-	}
-
-	
-	
-	@Override
 	protected void onRestart() {
 		super.onRestart();
 
+		startBinding();
 		outputSetup();
 	}
 	
@@ -149,6 +140,8 @@ public class MainActivity extends Activity
 			try{
 				unbindService(mConnection);
 			} catch(Exception e) {
+				//This will need to be changed to a specific
+				//type of exception or removed
 				System.out.println(e);
 			}
 		}
@@ -160,16 +153,18 @@ public class MainActivity extends Activity
 	}
 	
 	private void outputSetup() {
-		//This just sets up an area outside the app to view output
+		//DAD NOTE: This just sets up an area outside the app to view output
 		try
 		{
 			File mFile = new File(OUT_FILE_PATH);
 			pss = new PrintStream(mFile);
 
+			//DAD NOTE:
 			//This makes System.out.println(string)
 			//Send output to our file
-			et.setText("Successful setup");
 			System.setOut(pss);
+			
+			et.setText("Successful setup");
 		}
 		catch (FileNotFoundException e)
 		{
@@ -179,11 +174,12 @@ public class MainActivity extends Activity
 
 	}
 	
-	public void startPlaying() {
-		System.out.println("Start Playing");
+	public void startBinding() {
+		//This should be called when starting 
+		//to bind the service for general use
 		
 		Intent mIntent = new Intent(this,com.captncript.dadsRadio.DadsPlayer.class);
-		
+
 		try {
 			bindService(mIntent,mConnection,Context.BIND_AUTO_CREATE);
 		} catch(Exception e) {
@@ -191,8 +187,28 @@ public class MainActivity extends Activity
 		}
 	}
 	
+	public void startPlaying() {
+		System.out.println("Start Playing");
+		
+		new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try{
+						String foo = mDadsPlayer.testing();
+						if(foo != null) {
+							System.out.println("Errors with prep: " + foo);
+						}
+					} catch(Exception e) {
+						System.out.println(e);
+					}
+				}
+			}).start();
+	}
+	
 	public void findSongs(String mDescriptor, int mFlag) {
 		//This is for only a single descriptor
+		//mDescriptor is artist or song name
+		//mFlag indicates, which was sent
 		System.out.println("FindSongs: start");
 		
 		if(mFlag == ARTIST) {
@@ -207,7 +223,7 @@ public class MainActivity extends Activity
 	}
 	
 	public void findSongs(String mDescriptors[]) {
-		
+		//mDescriptors comes in with both artist and song name
 		startPlaying();
 	}
 	
@@ -229,6 +245,7 @@ public class MainActivity extends Activity
 				}
 			}
 		};
+		mDadsPlayer.setHandler(mHandler);
 		
 		findSongs("test",0);
 	}
@@ -253,7 +270,105 @@ public class MainActivity extends Activity
 	
 	public void pause(View v) {
 		if(mBound) {
-				mDadsPlayer.pause();
+				//mDadsPlayer.pause();
 		}
+		indexMusic();
 	}
+	
+	//*************************************************
+	//Below is a grouping of test functions
+	private void indexMusic() {
+		System.out.println("Indexing");
+		//TODO: Build an indexer
+		//      Come up with conditions to run this
+		//      Maybe make a custom handler just for indexing?
+		final Handler mIndexHandler = new Handler() {
+			public void handleMessage(Message msg) {
+				try {
+				switch(msg.what) {
+					case 0:
+						Bundle mBundle = msg.getData();
+						//String mIndexes[] = mBundle.getStringArray("Files");
+						
+						ArrayList<String> mIndex = mBundle.getStringArrayList("Files");
+//						for(String s: mIndexes) {
+//							System.out.println(s);
+//						}
+				
+						et.setText("index complete");
+					break;
+					case 1:
+						//For Updates
+						System.out.println((String)msg.obj);
+						//et.setText((String)msg.obj);
+					break;
+					case 2:
+						System.out.println(msg.arg1);
+				}
+				}catch(Exception e){
+					System.out.println(e);
+				}
+			}
+		};
+		System.out.println("Starting new thread");
+		
+		new Thread(new Runnable() {
+			ArrayList<String> mIndexes = new ArrayList();
+			Bundle mBundle = new Bundle();
+			
+			int mCounter = 0;
+			
+			@Override
+			public void run() {
+				File file = new File("/storage");
+				Message m = Message.obtain(mIndexHandler,1,"Building");
+				m.sendToTarget();
+
+				try{
+					fileCrawler(file);
+				} catch(Exception e) {
+					System.out.println(e);
+				}
+				System.out.println("crawled");
+				try {
+					mBundle.putStringArrayList("Files",mIndexes);
+					Message mMessage = Message.obtain(mIndexHandler, 0);
+					mMessage.setData(mBundle);
+					mMessage.sendToTarget();
+				}catch(Exception e) {
+					System.out.println(e);
+				}
+				try
+				{
+					Thread.currentThread().join();
+				}
+				catch (InterruptedException e)
+				{
+					System.out.println(e);
+				}
+			}
+			
+			public void fileCrawler(File mFile) {
+				/*
+				    Recursive function drills down
+					through all files looking for music 
+					files.
+				*/
+				File mFiles[] = null;
+				
+				if(mFile != null) {
+					mFiles = mFile.listFiles();
+				}
+				
+				if (mFiles != null) {
+					for(File f: mFiles) {
+						mIndexes.add(f.toString());
+					
+						fileCrawler(f);
+					}
+				}
+			}
+		}).start();
+	}
+	
 }

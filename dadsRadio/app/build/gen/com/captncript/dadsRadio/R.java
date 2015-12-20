@@ -17,6 +17,7 @@ public final class R {
         public static final int button3=0x7f060003;
         public static final int display=0x7f060000;
         public static final int pause=0x7f060002;
+        public static final int picker=0x7f060004;
         public static final int play=0x7f060001;
     }
     public static final class layout {

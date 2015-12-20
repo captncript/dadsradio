@@ -225,18 +225,16 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			isM2Playing = true;
 		}
 		
+		//System.out.println("DadsPlayer:pause:sending message");
+		
 		msg = Message.obtain(pHandler, PAUSE);
 		msg.sendToTarget();
 	}
 		
 	public String testing(){
-		File mSong = new File(SONG_URI);
 		String mPrepped = null;
 		
-//		for(String item : mSong.list()){
-//			System.out.println(item);
-//		}
-		mSongs[0] = mSong;
+		mSongs[0] = new File(SONG_URI);
 		mSongs[1] = new File(SONG_URI2);
 		
 		//Initialize mp1
@@ -297,6 +295,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			mp2 = null;
 		}
 		
+		System.out.println("DadsPlayer: clean");
+		
 		try
 		{
 			Thread.currentThread().join();
@@ -305,8 +305,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		{
 			System.out.println("Interrupted: " + e.toString());
 		}
-
-		System.out.println("DadsPlayer: clean");
 	}
 	
 }
