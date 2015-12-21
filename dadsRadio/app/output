@@ -1,17 +1,10 @@
 connected
 bound: true
-Indexing
-Starting new thread
-Building
-crawled
-/storage/sdcard0/Android/data
-/storage/sdcard0/Android/media
-/storage/emulated/legacy/Android/data
-/storage/emulated/legacy/Android/media
-/storage/emulated/0/Android/data
-/storage/emulated/0/Android/media
-/storage/external_SD/Android/data
-/storage/external_SD/Android/media
-/storage/external_SD/Music
+FindSongs: start
+Start Playing
+onPrepared
+mp equals mp1
+Pausing mp1
+Pausing mp1
 Unbinding service
 Closing stream

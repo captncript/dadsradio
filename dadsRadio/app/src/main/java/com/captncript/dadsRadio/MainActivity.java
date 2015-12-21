@@ -267,9 +267,9 @@ public class MainActivity extends Activity
 	
 	public void pause(View v) {
 		if(mBound) {
-				//mDadsPlayer.pause();
+				mDadsPlayer.pause();
 		}
-		indexMusic();
+		//indexMusic();
 	}
 	
 	//*************************************************
@@ -355,7 +355,7 @@ public class MainActivity extends Activity
 				System.out.println("crawled");
 				try {
 					mBundle.putStringArrayList("Files",mIndexDirs);
-					Message mMessage = Message.obtain(mIndexHandler, 2);
+					Message mMessage = Message.obtain(mIndexHandler, 0);
 					mMessage.arg1 = mCounter;
 					mMessage.setData(mBundle);
 					mMessage.sendToTarget();
@@ -400,19 +400,19 @@ public class MainActivity extends Activity
 					}
 				}
 				if(indexFiles != null) {
-//					for(File f : indexFiles) {
-//						String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
-//						if(!mPathToFile.equals(lastDir)) {
-//							mIndexDirs.add(mPathToFile);
-//							lastDir = mPathToFile;
-//						}
-//					}
 					for(File f : indexFiles) {
-						if(dadCount <= 1) {
-							mDirs.add(f.toString());
-							dadCount++;
+						String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
+						if(!mPathToFile.equals(lastDir)) {
+							mIndexDirs.add(mPathToFile);
+							lastDir = mPathToFile;
 						}
 					}
+//					for(File f : indexFiles) {
+//						if(dadCount <= 1) {
+//							mDirs.add(f.toString());
+//							dadCount++;
+//						}
+//					}
 				}
 			}
 		}).start();

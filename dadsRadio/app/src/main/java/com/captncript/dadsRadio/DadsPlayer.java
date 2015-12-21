@@ -12,6 +12,7 @@ import java.io.PrintStream;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.io.*;
+import java.util.*;
 
 
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
@@ -23,8 +24,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	MediaPlayer mp2 = null;
 	TextView tv = null;
 	
-	//Use a linked list instead?
-	File mSongs[] = new File[10];
+	//Use an Arraylist instead
+	ArrayList<File> mSongs = new ArrayList();
 	
 	private boolean pIsComplete = false;
 	private boolean pIsM1Paused = false;
@@ -34,8 +35,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	private String aSyncError = null;
 	
 	//Switch which is commented for your development
-	private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5";
-	private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5";
+	private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5.mp3";
+	private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5.mp3";
 	//private static final String SONG_URI="";
 	
 	
@@ -62,10 +63,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	public void setMSongs(File mSongs[]) {
-		if (mSongs.length <= 10){
-			this.mSongs = mSongs;
-		} else {
-			System.out.println("Too many songs!!!");
+		for(File f : mSongs) {
+			this.mSongs.add(f);
 		}
 	}
 	
@@ -82,7 +81,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	{
 		//This returns an iBinder to 
 		//communicate with the main activity
-	
+		mSongs.add(new File(SONG_URI));
+		mSongs.add(new File(SONG_URI2));
+		
 		return mIBinder;
 	}
 	
@@ -135,7 +136,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 					
 				try {
 					mp2.reset();
-					mp2.setDataSource(this, android.net.Uri.parse(mSongs[songPlaying].toString()));
+					mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
 				}
 				catch (SecurityException e) {
 					System.out.println("mp2 set security: " + e.toString());
@@ -166,7 +167,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 				songPlaying++;
 				try {
 					mp1.reset();
-					mp1.setDataSource(this, android.net.Uri.parse(mSongs[songPlaying].toString()));
+					mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
 				}
 				catch (SecurityException e)
 				{
@@ -234,9 +235,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	public String testing(){
 		String mPrepped = null;
 		
-		//mSongs[0] = new File(SONG_URI);
-		//mSongs[1] = new File(SONG_URI2);
-		
 		//Initialize mp1
 		mp1 = new MediaPlayer();
 		
@@ -256,7 +254,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
 		try
 		{
-			mp1.setDataSource(this, android.net.Uri.parse(mSongs[0].toString()));
+			mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(0).toString()));
 			mp1.prepare();
 		}
 		catch (SecurityException e)
@@ -312,8 +310,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	//*************Testing
 
 	public void setSongs(String s1, String s2) {
-		mSongs[0] = new File(s1);
-		mSongs[1] = new File(s2);
+		mSongs.add(new File(s1));
+		mSongs.add(new File(s2));
 	}
 	
 }
