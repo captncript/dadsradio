@@ -234,8 +234,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	public String testing(){
 		String mPrepped = null;
 		
-		mSongs[0] = new File(SONG_URI);
-		mSongs[1] = new File(SONG_URI2);
+		//mSongs[0] = new File(SONG_URI);
+		//mSongs[1] = new File(SONG_URI2);
 		
 		//Initialize mp1
 		mp1 = new MediaPlayer();
@@ -305,6 +305,15 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		{
 			System.out.println("Interrupted: " + e.toString());
 		}
+		
+	}
+	
+
+	//*************Testing
+
+	public void setSongs(String s1, String s2) {
+		mSongs[0] = new File(s1);
+		mSongs[1] = new File(s2);
 	}
 	
 }

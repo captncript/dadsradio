@@ -68,9 +68,6 @@ public class MainActivity extends Activity
 	
 	private Handler mHandler = null;
 	
-	private File pSong = null;
-	
-	
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
 		@Override
@@ -283,13 +280,16 @@ public class MainActivity extends Activity
 		//      Come up with conditions to run this
 		final Handler mIndexHandler = new Handler() {
 			public void handleMessage(Message msg) {
+				Bundle mBundle = null;
+				ArrayList<String> mIndex = null;
+				
 				try {
 				switch(msg.what) {
 					case 0:
-						Bundle mBundle = msg.getData();
+						mBundle = msg.getData();
 						//String mIndexes[] = mBundle.getStringArray("Files");
 						
-						ArrayList<String> mIndex = mBundle.getStringArrayList("Files");
+						 mIndex = mBundle.getStringArrayList("Files");
 						for(String s: mIndex) {
 							System.out.println(s);
 						}
@@ -302,7 +302,10 @@ public class MainActivity extends Activity
 						//et.setText((String)msg.obj);
 					break;
 					case 2:
-						System.out.println(msg.arg1);
+						mBundle = msg.getData();
+						mIndex = mBundle.getStringArrayList("Files");
+						mDadsPlayer.setSongs(mIndex.get(0),mIndex.get(1));
+					break;
 				}
 				}catch(Exception e){
 					System.out.println(e);
@@ -352,7 +355,7 @@ public class MainActivity extends Activity
 				System.out.println("crawled");
 				try {
 					mBundle.putStringArrayList("Files",mIndexDirs);
-					Message mMessage = Message.obtain(mIndexHandler, 0);
+					Message mMessage = Message.obtain(mIndexHandler, 2);
 					mMessage.arg1 = mCounter;
 					mMessage.setData(mBundle);
 					mMessage.sendToTarget();
@@ -378,6 +381,8 @@ public class MainActivity extends Activity
 				File mFiles[] = null;
 				File indexFiles[] = null;
 				
+				int dadCount = 0;
+				
 				if(mFile != null) {
 					mFiles = mFile.listFiles();
 					indexFiles = mFile.listFiles(filter);
@@ -395,11 +400,17 @@ public class MainActivity extends Activity
 					}
 				}
 				if(indexFiles != null) {
+//					for(File f : indexFiles) {
+//						String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
+//						if(!mPathToFile.equals(lastDir)) {
+//							mIndexDirs.add(mPathToFile);
+//							lastDir = mPathToFile;
+//						}
+//					}
 					for(File f : indexFiles) {
-						String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
-						if(!mPathToFile.equals(lastDir)) {
-							mIndexDirs.add(mPathToFile);
-							lastDir = mPathToFile;
+						if(dadCount <= 1) {
+							mDirs.add(f.toString());
+							dadCount++;
 						}
 					}
 				}
