@@ -49,9 +49,7 @@ public class MainActivity extends Activity
 	  when you are developing. This changes the destination of 
 	  all System.out.println() calls
 	*/
-	//private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/Captncript/dadsRadio/app/output";
-	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output";
-	
+	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/Dadsradio/dadsRadio/app/output";
 	
 	
 	//DAD NOTE: This variable will hold the text box
