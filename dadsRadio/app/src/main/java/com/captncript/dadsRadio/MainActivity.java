@@ -41,7 +41,6 @@ public class MainActivity extends Activity
 	  all System.out.println() calls
 	*/
 	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/DadsRadio/dadsradio/app/output";
-	//private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/dadsRadio-main/dadsradio/dadsRadio/app/output";
 	
 	
 	
