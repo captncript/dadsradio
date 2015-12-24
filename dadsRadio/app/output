@@ -1,11 +1,9 @@
 connected
 bound: true
-FindSongs: start
-Start Playing
-onPrepared
-mp equals mp1
-Pausing mp1
-Pausing mp1
-Main:cleanUp
-DadsPlayer: cleanUp
-DadsPlayer: clean
+Main:songPicker
+Indexing
+Starting new thread
+Building
+crawled
+Unbinding service
+Closing stream

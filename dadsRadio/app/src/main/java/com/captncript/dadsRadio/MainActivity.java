@@ -15,6 +15,7 @@ import android.view.View.*;
 import android.view.*;
 import android.provider.MediaStore;
 import java.util.*;
+import android.widget.AdapterView.*;
 
 /*
 	TODO:
@@ -65,6 +66,7 @@ public class MainActivity extends Activity
 	boolean mIsPaused = false;
 	
 	private Handler mHandler = null;
+	private ArrayList<String> pDirs = new ArrayList();
 	
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
@@ -267,13 +269,80 @@ public class MainActivity extends Activity
 		if(mBound) {
 				mDadsPlayer.pause();
 		}
-		//indexMusic();
 	}
 	
 	//*************************************************
 	//Below is a grouping of test functions
+	public void songPicker(View v) {
+		System.out.println("Main:songPicker");
+		indexMusic();
+	}
+	
+	public void songDisplay() {
+		final Dialog dialog = new Dialog(this);
+		ArrayList<String> mSongs = new ArrayList<String>();
+		dialog.setContentView(R.layout.songpicker);
+		dialog.setTitle("Song Selection");
+		dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.FILL_PARENT;
+		dialog.getWindow().getAttributes().height = WindowManager.LayoutParams.FILL_PARENT;
+		
+		
+		final ListView lv = (ListView)dialog.findViewById(R.id.Songs);
+		
+		final Button mBOK = (Button)dialog.findViewById(R.id.OK);
+		final Button mCancel = (Button)dialog.findViewById(R.id.Cancel);
+		
+		
+		if(pDirs != null) {
+			for(String s : pDirs) {
+				for(String t : new File(s).list(musicFilter)) {
+					mSongs.add(t);
+				}
+			}
+		}
+		
+		final ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSongs);
+		
+			if(lv != null) {
+				lv.setAdapter(mAdapter);
+			}
+		//Ok can't be picked without making a selection in
+		//the ListView
+		mBOK.setEnabled(false);
+
+		lv.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView < ? > adapter, View view, int position, long l) {
+				mBOK.setEnabled(true);
+			}
+		});
+		
+		mBOK.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				//TODO: Handle Playlist
+				dialog.dismiss();
+			}
+		});
+		dialog.show();
+	}
+	
+	FilenameFilter musicFilter = new FilenameFilter() {
+		@Override
+		public boolean accept(File p1, String name) {
+			//Add other sound files
+			String lowerName = name.toLowerCase();
+
+			if(lowerName.endsWith(".mp3")) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
+	
 	private void indexMusic() {
 		System.out.println("Indexing");
+		et.setText("Finding Songs");
 		//TODO: Make this store data somewhere
 		//      Come up with conditions to run this
 		final Handler mIndexHandler = new Handler() {
@@ -285,14 +354,14 @@ public class MainActivity extends Activity
 				switch(msg.what) {
 					case 0:
 						mBundle = msg.getData();
-						//String mIndexes[] = mBundle.getStringArray("Files");
-						
 						 mIndex = mBundle.getStringArrayList("Files");
 						for(String s: mIndex) {
-							System.out.println(s);
+							//System.out.println(s);
+							pDirs.add(s);
 						}
-						//System.out.println(msg.arg1);
 						et.setText("index complete");
+						
+						songDisplay();		
 					break;
 					case 1:
 						//For Updates
@@ -325,19 +394,6 @@ public class MainActivity extends Activity
 			String lastDir = new String();
 			
 			boolean once = true;
-			
-			FilenameFilter filter = new FilenameFilter() {
-				@Override
-				public boolean accept(File p1, String name) {
-					String lowerName = name.toLowerCase();
-					
-					if(lowerName.endsWith(".mp3")) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-			};
 			
 			@Override
 			public void run() {
@@ -383,7 +439,7 @@ public class MainActivity extends Activity
 				
 				if(mFile != null) {
 					mFiles = mFile.listFiles();
-					indexFiles = mFile.listFiles(filter);
+					indexFiles = mFile.listFiles(musicFilter);
 				}
 				
 				if (mFiles != null) {
