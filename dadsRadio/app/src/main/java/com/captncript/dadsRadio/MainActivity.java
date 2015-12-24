@@ -382,9 +382,9 @@ public class MainActivity extends Activity
 		System.out.println("Starting new thread");
 		
 		new Thread(new Runnable() {
-			ArrayList<String> mIndexes = new ArrayList();
-			ArrayList<String> mIndexDirs = new ArrayList();
-			ArrayList<String> mDirs = new ArrayList();
+			ArrayList<String> mIndexes = new ArrayList<String>();
+			ArrayList<String> mIndexDirs = new ArrayList<String>();
+			ArrayList<String> mDirs = new ArrayList<String>();
 			
 			Bundle mBundle = new Bundle();
 			
