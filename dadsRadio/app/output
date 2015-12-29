@@ -1,8 +1,9 @@
-Main: onStart
-FindSongs: start
-Start Playing
 connected
 bound: true
-Errors with prep: IO: java.io.IOException: setDataSource failed.
+Main:songPicker
+Indexing
+Starting new thread
+Building
+crawled
 Unbinding service
 Closing stream

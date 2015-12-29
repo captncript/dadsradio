@@ -12,6 +12,7 @@ import java.io.PrintStream;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.io.*;
+import java.util.*;
 
 
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
@@ -23,18 +24,19 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	MediaPlayer mp2 = null;
 	TextView tv = null;
 	
-	//Use a linked list instead?
-	File mSongs[] = new File[10];
+	//Use an Arraylist instead
+	ArrayList<File> mSongs = new ArrayList();
 	
 	private boolean pIsComplete = false;
-	private boolean pIsPaused = false;
+	private boolean pIsM1Paused = false;
+	private boolean pIsM2Paused = false;
 	private boolean pIsPrepared = false;
 	
 	private String aSyncError = null;
 	
 	//Switch which is commented for your development
-	private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5";
-	private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5";
+	private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5.mp3";
+	private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5.mp3";
 	//private static final String SONG_URI="";
 	
 	
@@ -61,10 +63,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	public void setMSongs(File mSongs[]) {
-		if (mSongs.length <= 10){
-			this.mSongs = mSongs;
-		} else {
-			System.out.println("Too many songs!!!");
+		for(File f : mSongs) {
+			this.mSongs.add(f);
 		}
 	}
 	
@@ -81,7 +81,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	{
 		//This returns an iBinder to 
 		//communicate with the main activity
-	
+		mSongs.add(new File(SONG_URI));
+		mSongs.add(new File(SONG_URI2));
+		
 		return mIBinder;
 	}
 	
@@ -120,14 +122,11 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	@Override
 	public void onCompletion(MediaPlayer mp)
 	{
-		// TODO: Fix this
 		//This will play the next song in the succession
-		//Probably use a second media player to chain songs
 		System.out.println("onCompletion");
 		
 		if(pIsComplete) {
-		//Implement this function to release media players
-		cleanUp();
+			cleanUp();
 		} else {
 			if(mp.equals(mp1)) {
 				System.out.println("starting second sound");
@@ -137,7 +136,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 					
 				try {
 					mp2.reset();
-					mp2.setDataSource(this, android.net.Uri.parse(mSongs[songPlaying].toString()));
+					mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
 				}
 				catch (SecurityException e) {
 					System.out.println("mp2 set security: " + e.toString());
@@ -168,7 +167,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 				songPlaying++;
 				try {
 					mp1.reset();
-					mp1.setDataSource(this, android.net.Uri.parse(mSongs[songPlaying].toString()));
+					mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
 				}
 				catch (SecurityException e)
 				{
@@ -205,32 +204,36 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		}
 	
 	public void pause() {
+		Message msg = null;
+		
 		if(isM1Playing) {
 			System.out.println("Pausing mp1");
-			pIsPaused = true;
+			pIsM1Paused = true;
+			isM1Playing = false;
 			mp1.pause();
 		} else if(isM2Playing) {
 			System.out.println("Pausing mp2");
 			mp2.pause();
-			pIsPaused = true;
+			pIsM2Paused = true;
+			isM2Playing = false;
+		} else if(pIsM1Paused) {
+			mp1.start();
+			pIsM1Paused = false;
+			isM1Playing = true;
+		} else if(pIsM2Paused) {
+			mp2.start();
+			pIsM2Paused = false;
+			isM2Playing = true;
 		}
-		try {
-		Message msg = Message.obtain(pHandler, PAUSE);
+		
+		//System.out.println("DadsPlayer:pause:sending message");
+		
+		msg = Message.obtain(pHandler, PAUSE);
 		msg.sendToTarget();
-		} catch(Exception e) {
-			System.out.println("Pause: " + e);
-		}
 	}
 		
 	public String testing(){
-		File mSong = new File(SONG_URI);
 		String mPrepped = null;
-		
-//		for(String item : mSong.list()){
-//			System.out.println(item);
-//		}
-		mSongs[0] = mSong;
-		mSongs[1] = new File(SONG_URI2);
 		
 		//Initialize mp1
 		mp1 = new MediaPlayer();
@@ -251,7 +254,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
 		try
 		{
-			mp1.setDataSource(this, android.net.Uri.parse(mSongs[0].toString()));
+			mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(0).toString()));
 			mp1.prepare();
 		}
 		catch (SecurityException e)
@@ -290,6 +293,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			mp2 = null;
 		}
 		
+		System.out.println("DadsPlayer: clean");
+		
 		try
 		{
 			Thread.currentThread().join();
@@ -298,8 +303,15 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		{
 			System.out.println("Interrupted: " + e.toString());
 		}
+		
+	}
+	
 
-		System.out.println("DadsPlayer: clean");
+	//*************Testing
+
+	public void setSongs(String s1, String s2) {
+		mSongs.add(new File(s1));
+		mSongs.add(new File(s2));
 	}
 	
 }
