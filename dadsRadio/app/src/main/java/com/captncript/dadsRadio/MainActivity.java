@@ -323,6 +323,14 @@ public class MainActivity extends Activity
 				dialog.dismiss();
 			}
 		});
+		
+		mCancel.setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+					//TODO: Handle Playlist
+					dialog.dismiss();
+				}
+			});
+			
 		dialog.show();
 	}
 	
