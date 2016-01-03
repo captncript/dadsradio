@@ -4,7 +4,6 @@
     android:gravity="center"
 	android:background="#000000"
 	android:orientation="vertical">
-
 	<EditText
 		android:id="@+id/display"
 		android:text="Testing"

@@ -24,8 +24,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	MediaPlayer mp2 = null;
 	TextView tv = null;
 	
-	//Use an Arraylist instead
-	ArrayList<File> mSongs = new ArrayList();
+	ArrayList<File> mSongs = new ArrayList<File>();
 	
 	private boolean pIsComplete = false;
 	private boolean pIsM1Paused = false;
@@ -88,6 +87,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	public DadsPlayer() {
+		//This is an empty constructor
 	}
 	
 	@Override
@@ -227,9 +227,12 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		}
 		
 		//System.out.println("DadsPlayer:pause:sending message");
-		
+		try{
 		msg = Message.obtain(pHandler, PAUSE);
 		msg.sendToTarget();
+		}catch(Exception e) {
+			System.out.println(e);
+		}
 	}
 		
 	public String testing(){

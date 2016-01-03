@@ -1,9 +1,4 @@
-connected
-bound: true
-Main:songPicker
-Indexing
-Starting new thread
-Building
-crawled
+Not null
+Pausing mp1
 Unbinding service
-Closing stream
+java.lang.IllegalArgumentException: Service not registered: com.captncript.dadsRadio.MainActivity$100000000@34b02c0c

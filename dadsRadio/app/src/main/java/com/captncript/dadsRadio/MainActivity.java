@@ -35,8 +35,10 @@ import android.widget.AdapterView.*;
 
 public class MainActivity extends Activity
 {
+	private SteadyVariables pSV;
+	
 	//DAD NOTE: This is the output stream for development uses
-	public PrintStream pss = null;
+	public PrintStream ps;
 	
 	public static final int ARTIST = 1;
 	public static final int SONG = 2;
@@ -63,6 +65,7 @@ public class MainActivity extends Activity
 	//we have a connection to the service(DadsPlayer.java)
 	boolean mBound = false;
 	boolean mIsPaused = false;
+	boolean mFragExists = false;
 	
 	private Handler mHandler = null;
 	private ArrayList<String> pDirs = new ArrayList<String>();
@@ -77,7 +80,9 @@ public class MainActivity extends Activity
 			mDadsPlayer = binder.getService();
 			mBound = true;
 			mDadsPlayer.setHandler(mHandler);
-				
+			
+			pSV.setPDadsPlayer(mDadsPlayer);
+			
 			String mErr = mDadsPlayer.getASyncError();
 			if(mErr != null) {
 				System.out.println("Async errors: " + mErr);
@@ -102,22 +107,44 @@ public class MainActivity extends Activity
 
 		setContentView(R.layout.main);
 		
+		FragmentManager fm = getFragmentManager();
+		pSV = (SteadyVariables)fm.findFragmentByTag("ps");
+		
 		et =  (EditText)findViewById(R.id.display);
 		pPauseButton = (Button)findViewById(R.id.pause);
 		
-		//pulled binding to creation
-		startBinding();
-		
-		/*
-		    DAD NOTE:
-		    Runs a setup for outputting
-		    data during development.
-		    This works specifically for me
-		    you will probably want to design
-		    your own.
-		*/
-		outputSetup();
 
+		/*
+		 DAD NOTE:
+		 Runs a setup for outputting
+		 data during development.
+		 This works specifically for me
+		 you will probably want to design
+		 your own.
+		 */
+		outputSetup();
+		Log.d("setup","Complete");
+		if(pSV == null) {
+			Log.i("isNull","Null");
+			pSV = new SteadyVariables();
+			
+			fm.beginTransaction().add(pSV, "ps").commit();
+		} else {
+			mDadsPlayer = pSV.getPDadsPlayer();
+			mHandler = pSV.getPHandler();
+			Log.d("Output", "Checking Handle");
+			if(mDadsPlayer != null) {
+				Log.d("Output", "Not null");
+				System.out.println("Not null");
+			}
+			//mDadsPlayer.setHandler(mHandler);
+		}
+		
+		if(mDadsPlayer == null) {
+			startBinding();
+		} else {
+			mBound = true;
+		}
     }
 
 	@Override
@@ -142,9 +169,6 @@ public class MainActivity extends Activity
 			}
 		}
 		
-		System.out.println("Closing stream");
-		pss.close();
-		
 		super.onStop();
 	}
 	
@@ -153,13 +177,17 @@ public class MainActivity extends Activity
 		try
 		{
 			File mFile = new File(OUT_FILE_PATH);
-			pss = new PrintStream(mFile);
+			
+			ps = new PrintStream(mFile);
 
 			//DAD NOTE:
 			//This makes System.out.println(string)
 			//Send output to our file
-			System.setOut(pss);
+			System.setOut(ps);
 			
+			if(mFragExists) {
+				System.out.println("Frag setup");
+			}
 			et.setText("Successful setup");
 		}
 		catch (FileNotFoundException e)
@@ -224,23 +252,26 @@ public class MainActivity extends Activity
 	}
 	
 	public void play(View v) {
-		mHandler = new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				switch(msg.what) {
-					case PAUSE:
-						if(!mIsPaused) {
-							et.setText("Paused");
-							pPauseButton.setText("Resume Playing");
-							mIsPaused = true;
-						} else {
-							et.setText("Playing");
-							pPauseButton.setText("Pause");
-							mIsPaused = false;
-						}
+		if(mHandler == null) {
+			mHandler = new Handler() {
+				@Override
+				public void handleMessage(Message msg) {
+					switch(msg.what) {
+						case PAUSE:
+							if(!mIsPaused) {
+								et.setText("Paused");
+								pPauseButton.setText("Resume Playing");
+								mIsPaused = true;
+							} else {
+								et.setText("Playing");
+								pPauseButton.setText("Pause");
+								mIsPaused = false;
+							}
+					}
 				}
-			}
-		};
+			};
+		}
+		pSV.setPHandler(mHandler);
 		mDadsPlayer.setHandler(mHandler);
 		
 		findSongs("test",0);
@@ -267,6 +298,8 @@ public class MainActivity extends Activity
 	public void pause(View v) {
 		if(mBound) {
 				mDadsPlayer.pause();
+		} else {
+			Log.d("mBound", "False");
 		}
 	}
 	
@@ -280,6 +313,7 @@ public class MainActivity extends Activity
 	public void songDisplay() {
 		final Dialog dialog = new Dialog(this);
 		ArrayList<String> mSongs = new ArrayList<String>();
+	
 		dialog.setContentView(R.layout.songpicker);
 		dialog.setTitle("Song Selection");
 		dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.FILL_PARENT;
