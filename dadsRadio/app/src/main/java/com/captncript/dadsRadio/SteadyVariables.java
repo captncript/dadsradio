@@ -1,10 +1,22 @@
 package com.captncript.dadsRadio;
 import android.app.*;
 import android.os.*;
+import android.content.*;
 
 public class SteadyVariables extends Fragment {
 	private DadsPlayer pDadsPlayer;
 	private Handler pHandler;
+	private ServiceConnection pConnection;
+
+	public void setPConnection(ServiceConnection pConnection)
+	{
+		this.pConnection = pConnection;
+	}
+
+	public ServiceConnection getPConnection()
+	{
+		return pConnection;
+	}
 
 	public void setPHandler(Handler pHandler)
 	{

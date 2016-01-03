@@ -21,6 +21,7 @@ import android.widget.AdapterView.*;
 	TODO:
 	
    -Add basic radio playing functions(seek, next song, previous song, volume)
+   -Test reading output file and storing in fragment to keep info
    -Find music in system
    -Decide if music should be found in its own thread
    -Make play button resume songs instead of pause button
@@ -123,21 +124,16 @@ public class MainActivity extends Activity
 		 your own.
 		 */
 		outputSetup();
-		Log.d("setup","Complete");
+		
 		if(pSV == null) {
-			Log.i("isNull","Null");
 			pSV = new SteadyVariables();
 			
 			fm.beginTransaction().add(pSV, "ps").commit();
+			pSV.setPConnection(mConnection);
 		} else {
 			mDadsPlayer = pSV.getPDadsPlayer();
 			mHandler = pSV.getPHandler();
-			Log.d("Output", "Checking Handle");
-			if(mDadsPlayer != null) {
-				Log.d("Output", "Not null");
-				System.out.println("Not null");
-			}
-			//mDadsPlayer.setHandler(mHandler);
+			mConnection = pSV.getPConnection();
 		}
 		
 		if(mDadsPlayer == null) {
@@ -185,9 +181,6 @@ public class MainActivity extends Activity
 			//Send output to our file
 			System.setOut(ps);
 			
-			if(mFragExists) {
-				System.out.println("Frag setup");
-			}
 			et.setText("Successful setup");
 		}
 		catch (FileNotFoundException e)
@@ -278,28 +271,34 @@ public class MainActivity extends Activity
 	}
 	
 	public void cleanUp(View v) {
+		//This doesn't display and
+		//locks down the program
 		System.out.println("Main:cleanUp");
-		et.setText("Cleaning up");
+		try {
+			et.setText("Cleaning up");
+			System.out.println(et.getText());
+		} catch(Exception e) {
+			System.out.println(e);
+		}
 		//This releases all remaining
 		//media players
 		try {
-		mDadsPlayer.cleanUp();
+			mDadsPlayer.cleanUp();
 		
-		if(mBound) {
-			unbindService(mConnection);
-		}
-		System.out.println("Main:Clean");
+			if(mBound) {
+				unbindService(mConnection);
+			}
+			System.out.println("Main:Clean");
 		}catch(Exception e) {
 			System.out.println("cleanup: " + e.toString());
 		}
+		
 		et.setText("Clean");
 	}
 	
 	public void pause(View v) {
 		if(mBound) {
 				mDadsPlayer.pause();
-		} else {
-			Log.d("mBound", "False");
 		}
 	}
 	
