@@ -1,5 +1,2 @@
-connected
-bound: true
-java.lang.NullPointerException: Attempt to invoke virtual method 'boolean android.os.Handler.sendMessage(android.os.Message)' on a null object reference
-java.lang.NullPointerException: Attempt to invoke virtual method 'boolean android.os.Handler.sendMessage(android.os.Message)' on a null object reference
 Unbinding service
+java.lang.IllegalArgumentException: Service not registered: com.captncript.dadsRadio.MainActivity$100000000@1f1932cb
