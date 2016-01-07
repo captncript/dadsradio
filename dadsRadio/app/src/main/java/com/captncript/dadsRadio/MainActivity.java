@@ -362,7 +362,9 @@ public class MainActivity extends Activity
 		mBOK.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				//TODO: Handle Playlist
-                
+                //******
+                mDadsPlayer.setMSongs(mSelectedSongs);
+                //******
                 mSelectedSongs.clear();
 				dialog.dismiss();
 			}
