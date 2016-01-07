@@ -305,6 +305,8 @@ public class MainActivity extends Activity
 	//*************************************************
 	//Below is a grouping of test functions
 	public void songPicker(View v) {
+        //temporary
+        //indexMusic needs to be moved to the background
 		System.out.println("Main:songPicker");
 		indexMusic();
 	}
@@ -312,6 +314,9 @@ public class MainActivity extends Activity
 	public void songDisplay() {
 		final Dialog dialog = new Dialog(this);
 		ArrayList<String> mSongs = new ArrayList<String>();
+        ArrayList<Song> mSongss = new ArrayList<Song>();
+        ArrayList<Song> mSelectedSongs = new ArrayList<Song>();
+        
 	
 		dialog.setContentView(R.layout.songpicker);
 		dialog.setTitle("Song Selection");

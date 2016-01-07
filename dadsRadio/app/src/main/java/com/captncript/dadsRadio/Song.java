@@ -4,6 +4,10 @@ import java.io.File;
 public class Song {
     private File file;
     private String name;
+    
+    public Song() {
+        //empty constructor
+    }
 
     public void setName(String name)
     {
