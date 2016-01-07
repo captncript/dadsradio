@@ -372,7 +372,7 @@ public class MainActivity extends Activity
 			//Add other sound files
 			String lowerName = name.toLowerCase();
 
-			if(lowerName.endsWith(".mp3")) {
+			if(lowerName.endsWith(".mp3") && !lowerName.startsWith("com.")) {
 				return true;
 			} else {
 				return false;
