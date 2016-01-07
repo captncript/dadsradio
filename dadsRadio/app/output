@@ -1,2 +1,3 @@
+connected
+bound: true
 Unbinding service
-java.lang.IllegalArgumentException: Service not registered: com.captncript.dadsRadio.MainActivity$100000000@31ce1c85

@@ -314,9 +314,9 @@ public class MainActivity extends Activity
 	public void songDisplay() {
 		final Dialog dialog = new Dialog(this);
 		ArrayList<String> mSongs = new ArrayList<String>();
-        ArrayList<Song> mSongss = new ArrayList<Song>();
-        ArrayList<Song> mSelectedSongs = new ArrayList<Song>();
-        
+        final ArrayList<Song> mSongss = new ArrayList<Song>();
+        final ArrayList<Song> mSelectedSongs = new ArrayList<Song>();
+        Song mSong = new Song();
 	
 		dialog.setContentView(R.layout.songpicker);
 		dialog.setTitle("Song Selection");
@@ -334,6 +334,10 @@ public class MainActivity extends Activity
 			for(String s : pDirs) {
 				for(String t : new File(s).list(musicFilter)) {
 					mSongs.add(t);
+                    mSong.setName(s + File.separator + t);
+                    mSong.setFile(new File(mSong.getName()));
+                    mSongss.add(mSong);
+                    mSong = new Song();
 				}
 			}
 		}
@@ -350,6 +354,7 @@ public class MainActivity extends Activity
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView < ? > adapter, View view, int position, long l) {
+                mSelectedSongs.add(mSongss.get(position));
 				mBOK.setEnabled(true);
 			}
 		});
@@ -357,13 +362,15 @@ public class MainActivity extends Activity
 		mBOK.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				//TODO: Handle Playlist
+                
+                mSelectedSongs.clear();
 				dialog.dismiss();
 			}
 		});
 		
 		mCancel.setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
-					//TODO: Handle Playlist
+                    mSelectedSongs.clear();
 					dialog.dismiss();
 				}
 			});
@@ -412,11 +419,6 @@ public class MainActivity extends Activity
 						//For Updates
 						System.out.println((String)msg.obj);
 						//et.setText((String)msg.obj);
-					break;
-					case 2:
-						mBundle = msg.getData();
-						mIndex = mBundle.getStringArrayList("Files");
-						mDadsPlayer.setSongs(mIndex.get(0),mIndex.get(1));
 					break;
 				}
 				}catch(Exception e){

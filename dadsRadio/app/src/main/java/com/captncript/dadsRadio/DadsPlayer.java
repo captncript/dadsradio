@@ -66,6 +66,12 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			this.mSongs.add(f);
 		}
 	}
+    
+    public void setMSongs(ArrayList<Song> mSongs) {
+        for(Song s : mSongs) {
+            this.mSongs.add(s.getFile());
+        }
+    }
 	
 	public class LocalBinder extends Binder {
 		DadsPlayer getService() {
@@ -80,8 +86,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	{
 		//This returns an iBinder to 
 		//communicate with the main activity
-		mSongs.add(new File(SONG_URI));
-		mSongs.add(new File(SONG_URI2));
+		//mSongs.add(new File(SONG_URI));
+		//mSongs.add(new File(SONG_URI2));
 		
 		return mIBinder;
 	}
@@ -131,7 +137,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			if(mp.equals(mp1)) {
 				System.out.println("starting second sound");
 				//Repeated make it a function?
-				songPlaying = 0; //Only here for testing
 				songPlaying++;
 					
 				try {
@@ -163,7 +168,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 				mp1.stop();
 			} else if(mp.equals(mp2)) {
 				System.out.println("Starting first sound");
-				songPlaying = -1; //Only here for testing
 				songPlaying++;
 				try {
 					mp1.reset();
@@ -307,14 +311,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			System.out.println("Interrupted: " + e.toString());
 		}
 		
-	}
-	
-
-	//*************Testing
-
-	public void setSongs(String s1, String s2) {
-		mSongs.add(new File(s1));
-		mSongs.add(new File(s2));
 	}
 	
 }
