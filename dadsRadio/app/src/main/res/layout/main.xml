@@ -27,13 +27,13 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			android:onClick="pause"/>
+        <Button
+            android:id="@+id/next"
+            android:text="Next Song"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+			android:onClick="nextSong"/>
 	</LinearLayout>
-	<Button
-		android:id="@+id/button3"
-		android:text="Clean Up"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" 
-		android:onClick="cleanUp" />
 	<Button
 		android:id="@+id/picker"
 		android:text="Pick Song"

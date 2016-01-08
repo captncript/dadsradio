@@ -1,21 +1,17 @@
 package com.captncript.dadsRadio;
 
 import android.app.*;
-import android.media.MediaPlayer;
-import android.os.*;
-
-import java.io.*;
-import android.util.*;
-
-import java.net.URL;
-import android.widget.*;
 import android.content.*;
-import android.media.*;
-import android.view.View.*;
+import android.os.*;
+import android.util.*;
 import android.view.*;
-import android.provider.MediaStore;
-import java.util.*;
+import android.view.View.*;
+import android.widget.*;
 import android.widget.AdapterView.*;
+import java.io.*;
+import java.util.*;
+
+import android.view.View.OnClickListener;
 
 /*
 	TODO:
@@ -43,8 +39,8 @@ public class MainActivity extends Activity
 	
 	public static final int ARTIST = 1;
 	public static final int SONG = 2;
-	public static final int PAUSE = 0;
 	public static final int REQUEST_MEDIA = 3;
+    public static final int PAUSE = 0;
 	
 	/*
 	  DAD NOTE:
@@ -245,6 +241,7 @@ public class MainActivity extends Activity
 	}
 	
 	public void play(View v) {
+        
 		if(mHandler == null) {
 			mHandler = new Handler() {
 				@Override
@@ -253,11 +250,9 @@ public class MainActivity extends Activity
 						case PAUSE:
 							if(!mIsPaused) {
 								et.setText("Paused");
-								pPauseButton.setText("Resume Playing");
 								mIsPaused = true;
 							} else {
 								et.setText("Playing");
-								pPauseButton.setText("Pause");
 								mIsPaused = false;
 							}
 					}
@@ -267,12 +262,21 @@ public class MainActivity extends Activity
 		pSV.setPHandler(mHandler);
 		mDadsPlayer.setHandler(mHandler);
 		
-		findSongs("test",0);
+        System.out.println(mIsPaused);
+        if(mIsPaused == false) {
+		    startPlaying();
+        } else {
+            System.out.println("called");
+            mIsPaused = false;
+            //TODO:Make this a message to handler
+            mDadsPlayer.pause();
+        }
 	}
 	
 	public void cleanUp(View v) {
 		//This doesn't display and
 		//locks down the program
+        //Might remove
 		System.out.println("Main:cleanUp");
 		try {
 			et.setText("Cleaning up");
@@ -298,9 +302,18 @@ public class MainActivity extends Activity
 	
 	public void pause(View v) {
 		if(mBound) {
-				mDadsPlayer.pause();
+            if(mIsPaused == true) {
+				mIsPaused = false;
+            } else {
+                mIsPaused = true;
+            }
+            mDadsPlayer.pause();
 		}
 	}
+    
+    public void nextSong(View v) {
+        mDadsPlayer.nextSong();
+    }
 	
 	//*************************************************
 	//Below is a grouping of test functions

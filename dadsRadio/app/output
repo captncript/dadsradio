@@ -1,16 +1,21 @@
 connected
 bound: true
-FindSongs: start
-Start Playing
-java.lang.IndexOutOfBoundsException: Invalid index 0, size is 0
 Main:songPicker
 Indexing
 Starting new thread
 Building
 crawled
-FindSongs: start
+false
 Start Playing
 onPrepared
 mp equals mp1
 Pausing mp1
+Pausing mp1
+Pausing mp1
+Pausing mp1
+Pausing mp1
+false
+Start Playing
+onPrepared
+mp equals mp1
 Unbinding service

@@ -1,16 +1,10 @@
 package com.captncript.dadsRadio;
 
 import android.app.*;
+import android.content.*;
 import android.media.*;
 import android.os.*;
-import android.content.*;
 import android.widget.*;
-import android.view.*;
-
-import java.io.File;
-import java.io.PrintStream;
-import java.io.FileNotFoundException;
-import java.net.URI;
 import java.io.*;
 import java.util.*;
 
@@ -34,13 +28,13 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	private String aSyncError = null;
 	
 	//Switch which is commented for your development
-	private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5.mp3";
-	private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5.mp3";
+	//private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5.mp3";
+	//private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5.mp3";
 	//private static final String SONG_URI="";
 	
 	
 	private static final int PAUSE = 0;
-	public int songPlaying = 0;
+    public int songPlaying = 0;
 	
 	private boolean isM1Playing = false;
 	private boolean isM2Playing = false;
@@ -134,78 +128,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		if(pIsComplete) {
 			cleanUp();
 		} else {
-			if(mp.equals(mp1)) {
-				System.out.println("starting second sound");
-				//Repeated make it a function?
-				songPlaying++;
-					
-				try {
-					mp2.reset();
-					mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
-				}
-				catch (SecurityException e) {
-					System.out.println("mp2 set security: " + e.toString());
-				}
-				catch (IllegalArgumentException e) {
-					System.out.println("mp2 set illegalArgument: " + e.toString());
-				}
-				catch (IllegalStateException e) {
-					System.out.println("mp2 set IllegalState: " + e.toString());
-				}
-				catch (IOException e) {
-					System.out.println("mp2 set io: " + e.toString());
-				}
-				
-				try {
-					mp2.prepare();
-				}
-				catch (IllegalStateException e) {
-					System.out.println("mp2 prepare: " + e.toString());
-				}
-				catch (IOException e) {
-					System.out.println("mp2 prepare: " + e.toString());
-				}
-				mp1.stop();
-			} else if(mp.equals(mp2)) {
-				System.out.println("Starting first sound");
-				songPlaying++;
-				try {
-					mp1.reset();
-					mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
-				}
-				catch (SecurityException e)
-				{
-					System.out.println("mp1 set: " + e.toString());
-				}
-				catch (IllegalArgumentException e)
-				{
-					System.out.println("mp1 set: " + e.toString());
-				}
-				catch (IllegalStateException e)
-				{
-					System.out.println("mp1 set: " + e.toString());
-				}
-				catch (IOException e)
-				{
-					System.out.println("mp1 set: " + e.toString());
-				}
-				try
-				{
-					mp1.prepare();
-				}
-				catch (IllegalStateException e)
-				{
-					System.out.println("mp1 prepare: " + e.toString());
-				}
-				catch (IOException e)
-				{
-					System.out.println("mp1 prepare: " + e.toString());
-				}
-				mp2.stop();
-			}
-				
-			}
+			nextSong();
 		}
+	}
 	
 	public void pause() {
 		Message msg = null;
@@ -232,13 +157,182 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		
 		//System.out.println("DadsPlayer:pause:sending message");
 		try{
-		msg = Message.obtain(pHandler, PAUSE);
-		msg.sendToTarget();
+		    msg = Message.obtain(pHandler, PAUSE);
+		    msg.sendToTarget();
 		}catch(Exception e) {
 			System.out.println(e);
 		}
 	}
 		
+    public void nextSong() {
+        System.out.println("Next song");
+        songPlaying++;
+        
+        if(isM1Playing) {
+            System.out.println("starting second sound");
+            //Repeated make it a function?
+
+            try {
+                mp2.reset();
+                if(songPlaying < mSongs.size()) {
+                    System.out.println("setSource");
+                    mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
+                } else {
+                    cleanUp();
+                }
+            }
+            catch (SecurityException e) {
+                System.out.println("mp2 set security: " + e.toString());
+            }
+            catch (IllegalArgumentException e) {
+                System.out.println("mp2 set illegalArgument: " + e.toString());
+            }
+            catch (IllegalStateException e) {
+                System.out.println("mp2 set IllegalState: " + e.toString());
+            }
+            catch (IOException e) {
+                System.out.println("mp2 set io: " + e.toString());
+            }
+
+            try {
+                mp2.prepare();
+            }
+            catch (IllegalStateException e) {
+                System.out.println("mp2 prepare: " + e.toString());
+            }
+            catch (IOException e) {
+                System.out.println("mp2 prepare: " + e.toString());
+            }
+            mp1.stop();
+        } else if(isM2Playing) {
+            System.out.println("Starting first sound");
+           
+            try {
+                mp1.reset();
+                System.out.println("after reset");
+                
+                if(songPlaying < mSongs.size()) {
+                    mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
+                } else {
+                    cleanUp();
+                }
+            }
+            catch (SecurityException e)
+            {
+                System.out.println("mp1 set: " + e.toString());
+            }
+            catch (IllegalArgumentException e)
+            {
+                System.out.println("mp1 set: " + e.toString());
+            }
+            catch (IllegalStateException e)
+            {
+                System.out.println("mp1 set: " + e.toString());
+            }
+            catch (IOException e)
+            {
+                System.out.println("mp1 set: " + e.toString());
+            }
+            try
+            {
+                mp1.prepare();
+            }
+            catch (IllegalStateException e)
+            {
+                System.out.println("mp1 prepare: " + e.toString());
+            }
+            catch (IOException e)
+            {
+                System.out.println("mp1 prepare: " + e.toString());
+            }
+            mp2.stop();
+        }
+    }
+    
+    public void prevSong() {
+        songPlaying--;
+        
+        if(isM1Playing) {
+            System.out.println("starting second sound");
+            //Repeated make it a function?
+
+            try {
+                mp2.reset();
+                if(songPlaying < mSongs.size()) {
+                    System.out.println("setSource");
+                    mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
+                } else {
+                    cleanUp();
+                }
+            }
+            catch (SecurityException e) {
+                System.out.println("mp2 set security: " + e.toString());
+            }
+            catch (IllegalArgumentException e) {
+                System.out.println("mp2 set illegalArgument: " + e.toString());
+            }
+            catch (IllegalStateException e) {
+                System.out.println("mp2 set IllegalState: " + e.toString());
+            }
+            catch (IOException e) {
+                System.out.println("mp2 set io: " + e.toString());
+            }
+
+            try {
+                mp2.prepare();
+            }
+            catch (IllegalStateException e) {
+                System.out.println("mp2 prepare: " + e.toString());
+            }
+            catch (IOException e) {
+                System.out.println("mp2 prepare: " + e.toString());
+            }
+            mp1.stop();
+        } else if(isM2Playing) {
+            System.out.println("Starting first sound");
+
+            try {
+                mp1.reset();
+                System.out.println("after reset");
+
+                if(songPlaying < mSongs.size()) {
+                    mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
+                } else {
+                    cleanUp();
+                }
+            }
+            catch (SecurityException e)
+            {
+                System.out.println("mp1 set: " + e.toString());
+            }
+            catch (IllegalArgumentException e)
+            {
+                System.out.println("mp1 set: " + e.toString());
+            }
+            catch (IllegalStateException e)
+            {
+                System.out.println("mp1 set: " + e.toString());
+            }
+            catch (IOException e)
+            {
+                System.out.println("mp1 set: " + e.toString());
+            }
+            try
+            {
+                mp1.prepare();
+            }
+            catch (IllegalStateException e)
+            {
+                System.out.println("mp1 prepare: " + e.toString());
+            }
+            catch (IOException e)
+            {
+                System.out.println("mp1 prepare: " + e.toString());
+            }
+            mp2.stop();
+        }
+    }
+    
 	public String testing(){
 		String mPrepped = null;
 		
