@@ -16,18 +16,10 @@ import android.view.View.OnClickListener;
 /*
 	TODO:
 	
-   -Add basic radio playing functions(seek, next song, previous song, volume)
+   -Add basic radio playing functions(seek)
    -Test reading output file and storing in fragment to keep info
-   -Find music in system
-   -Decide if music should be found in its own thread
-   -Make play button resume songs instead of pause button
    -Change buttons to symbols
    -Add voice control
-*/
-
-/*
-    Going to attempt a folder indexer
-    for faster searching of music
 */
 
 public class MainActivity extends Activity
@@ -42,13 +34,6 @@ public class MainActivity extends Activity
 	public static final int REQUEST_MEDIA = 3;
     public static final int PAUSE = 0;
 	
-	/*
-	  DAD NOTE:
-	  Below this you will see 2 of the same variable
-	  Nick's should be commented out and Chris' uncommented
-	  when you are developing. This changes the destination of 
-	  all System.out.println() calls
-	*/
 	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/DadsRadio/dadsradio/app/output";
 	
 	//DAD NOTE: This variable will hold the text box
@@ -262,13 +247,10 @@ public class MainActivity extends Activity
 		pSV.setPHandler(mHandler);
 		mDadsPlayer.setHandler(mHandler);
 		
-        System.out.println(mIsPaused);
         if(mIsPaused == false) {
 		    startPlaying();
         } else {
-            System.out.println("called");
             mIsPaused = false;
-            //TODO:Make this a message to handler
             mDadsPlayer.pause();
         }
 	}
@@ -314,6 +296,10 @@ public class MainActivity extends Activity
     public void nextSong(View v) {
         mDadsPlayer.nextSong();
     }
+    
+    public void prevSong(View v) {
+        mDadsPlayer.prevSong();
+    }
 	
 	//*************************************************
 	//Below is a grouping of test functions
@@ -326,7 +312,7 @@ public class MainActivity extends Activity
 	
 	public void songDisplay() {
 		final Dialog dialog = new Dialog(this);
-		ArrayList<String> mSongs = new ArrayList<String>();
+		final ArrayList<String> mSongs = new ArrayList<String>();
         final ArrayList<Song> mSongss = new ArrayList<Song>();
         final ArrayList<Song> mSelectedSongs = new ArrayList<Song>();
         Song mSong = new Song();
@@ -343,7 +329,8 @@ public class MainActivity extends Activity
 		final Button mCancel = (Button)dialog.findViewById(R.id.Cancel);
 		
 		
-		if(pDirs != null) {
+		if(pDirs != null && !(mSongs.size() > 0)) {
+            System.out.println("making songs");
 			for(String s : pDirs) {
 				for(String t : new File(s).list(musicFilter)) {
 					mSongs.add(t);
@@ -374,21 +361,21 @@ public class MainActivity extends Activity
 		
 		mBOK.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				//TODO: Handle Playlist
-                //******
                 mDadsPlayer.setMSongs(mSelectedSongs);
-                //******
                 mSelectedSongs.clear();
+                mAdapter.clear();
+                mAdapter.notifyDataSetChanged();
+                lv.invalidateViews();
 				dialog.dismiss();
 			}
 		});
 		
 		mCancel.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-                    mSelectedSongs.clear();
-					dialog.dismiss();
-				}
-			});
+			public void onClick(View v) {
+                mSelectedSongs.clear();
+			    dialog.dismiss();
+		    }
+		});
 			
 		dialog.show();
 	}

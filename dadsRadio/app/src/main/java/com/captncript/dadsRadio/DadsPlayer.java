@@ -27,12 +27,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	private String aSyncError = null;
 	
-	//Switch which is commented for your development
-	//private static final String SONG_URI="/storage/external_SD/Music/ACDC  Rocker 5.mp3";
-	//private static final String SONG_URI2="/storage/external_SD/Music/ACDC  Ruby Ruby 5.mp3";
-	//private static final String SONG_URI="";
-	
-	
 	private static final int PAUSE = 0;
     public int songPlaying = 0;
 	
@@ -125,11 +119,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		//This will play the next song in the succession
 		System.out.println("onCompletion");
 		
-		if(pIsComplete) {
-			cleanUp();
-		} else {
-			nextSong();
-		}
+		nextSong();
 	}
 	
 	public void pause() {
@@ -155,7 +145,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			isM2Playing = true;
 		}
 		
-		//System.out.println("DadsPlayer:pause:sending message");
 		try{
 		    msg = Message.obtain(pHandler, PAUSE);
 		    msg.sendToTarget();
@@ -168,98 +157,24 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         System.out.println("Next song");
         songPlaying++;
         
-        if(isM1Playing) {
-            System.out.println("starting second sound");
-            //Repeated make it a function?
-
-            try {
-                mp2.reset();
-                if(songPlaying < mSongs.size()) {
-                    System.out.println("setSource");
-                    mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
-                } else {
-                    cleanUp();
-                }
-            }
-            catch (SecurityException e) {
-                System.out.println("mp2 set security: " + e.toString());
-            }
-            catch (IllegalArgumentException e) {
-                System.out.println("mp2 set illegalArgument: " + e.toString());
-            }
-            catch (IllegalStateException e) {
-                System.out.println("mp2 set IllegalState: " + e.toString());
-            }
-            catch (IOException e) {
-                System.out.println("mp2 set io: " + e.toString());
-            }
-
-            try {
-                mp2.prepare();
-            }
-            catch (IllegalStateException e) {
-                System.out.println("mp2 prepare: " + e.toString());
-            }
-            catch (IOException e) {
-                System.out.println("mp2 prepare: " + e.toString());
-            }
-            mp1.stop();
-        } else if(isM2Playing) {
-            System.out.println("Starting first sound");
-           
-            try {
-                mp1.reset();
-                System.out.println("after reset");
-                
-                if(songPlaying < mSongs.size()) {
-                    mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
-                } else {
-                    cleanUp();
-                }
-            }
-            catch (SecurityException e)
-            {
-                System.out.println("mp1 set: " + e.toString());
-            }
-            catch (IllegalArgumentException e)
-            {
-                System.out.println("mp1 set: " + e.toString());
-            }
-            catch (IllegalStateException e)
-            {
-                System.out.println("mp1 set: " + e.toString());
-            }
-            catch (IOException e)
-            {
-                System.out.println("mp1 set: " + e.toString());
-            }
-            try
-            {
-                mp1.prepare();
-            }
-            catch (IllegalStateException e)
-            {
-                System.out.println("mp1 prepare: " + e.toString());
-            }
-            catch (IOException e)
-            {
-                System.out.println("mp1 prepare: " + e.toString());
-            }
-            mp2.stop();
-        }
+        songChange();
     }
     
     public void prevSong() {
+        System.out.println("Prev song");
         songPlaying--;
         
+        songChange();
+    }
+    
+    public void songChange() {
         if(isM1Playing) {
             System.out.println("starting second sound");
             //Repeated make it a function?
 
             try {
                 mp2.reset();
-                if(songPlaying < mSongs.size()) {
-                    System.out.println("setSource");
+                if(songPlaying < mSongs.size() && songPlaying >= 0) {
                     mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
                 } else {
                     cleanUp();
@@ -293,9 +208,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
             try {
                 mp1.reset();
-                System.out.println("after reset");
 
-                if(songPlaying < mSongs.size()) {
+                if(songPlaying < mSongs.size() && songPlaying >= 0) {
                     mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
                 } else {
                     cleanUp();
@@ -374,8 +288,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		{
 			mPrepped = "IO: " + e.toString();
 		}
-
-		//TODO:Check if this is thread safe
+        
 		return (mPrepped);
 	}
 	

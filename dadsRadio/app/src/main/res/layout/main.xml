@@ -33,6 +33,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" 
 			android:onClick="nextSong"/>
+        <Button
+            android:id="@+id/prev"
+            android:text="Prev Song"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+			android:onClick="prevSong"/>
 	</LinearLayout>
 	<Button
 		android:id="@+id/picker"
