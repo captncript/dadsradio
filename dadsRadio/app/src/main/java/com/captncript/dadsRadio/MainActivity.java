@@ -115,6 +115,7 @@ public class MainActivity extends Activity
 			mDadsPlayer = pSV.getPDadsPlayer();
 			mHandler = pSV.getPHandler();
 			mConnection = pSV.getPConnection();
+            mIsPaused = savedInstanceState.getBoolean("paused");
 		}
 		
 		if(mDadsPlayer == null) {
@@ -124,6 +125,15 @@ public class MainActivity extends Activity
 		}
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        outState.putBoolean("paused", mIsPaused);
+        super.onSaveInstanceState(outState);
+    }
+
+    
+    
 	@Override
 	protected void onRestart() {
 		super.onRestart();
@@ -233,13 +243,14 @@ public class MainActivity extends Activity
 				public void handleMessage(Message msg) {
 					switch(msg.what) {
 						case PAUSE:
-							if(!mIsPaused) {
+							if(mIsPaused == false) {
 								et.setText("Paused");
 								mIsPaused = true;
 							} else {
 								et.setText("Playing");
 								mIsPaused = false;
 							}
+                        break;
 					}
 				}
 			};
@@ -247,6 +258,7 @@ public class MainActivity extends Activity
 		pSV.setPHandler(mHandler);
 		mDadsPlayer.setHandler(mHandler);
 		
+        System.out.println(mIsPaused);
         if(mIsPaused == false) {
 		    startPlaying();
         } else {
@@ -284,11 +296,6 @@ public class MainActivity extends Activity
 	
 	public void pause(View v) {
 		if(mBound) {
-            if(mIsPaused == true) {
-				mIsPaused = false;
-            } else {
-                mIsPaused = true;
-            }
             mDadsPlayer.pause();
 		}
 	}

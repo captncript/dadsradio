@@ -1,15 +1,6 @@
-connected
-bound: true
-Main:songPicker
-Indexing
-Starting new thread
-Building
-crawled
-making songs
-Main:songPicker
-Indexing
-Starting new thread
-Building
-crawled
-making songs
+return = true
+return2 = true
+true
+is paused false
 Unbinding service
+java.lang.IllegalArgumentException: Service not registered: com.captncript.dadsRadio.MainActivity$100000000@20960ce7
