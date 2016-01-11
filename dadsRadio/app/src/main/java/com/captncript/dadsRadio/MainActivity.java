@@ -48,7 +48,8 @@ public class MainActivity extends Activity
 	boolean mBound = false;
 	boolean mIsPaused = false;
 	boolean mFragExists = false;
-	
+	boolean mReOpened = false;
+    
 	private Handler mHandler = null;
 	private ArrayList<String> pDirs = new ArrayList<String>();
 	
@@ -280,24 +281,15 @@ public class MainActivity extends Activity
 		}
 		//This releases all remaining
 		//media players
-		try {
-			mDadsPlayer.cleanUp();
+		mDadsPlayer.cleanUp();
 		
-			if(mBound) {
-				unbindService(mConnection);
-			}
-			System.out.println("Main:Clean");
-		}catch(Exception e) {
-			System.out.println("cleanup: " + e.toString());
-		}
+		System.out.println("Main:Clean");
 		
 		et.setText("Clean");
 	}
 	
 	public void pause(View v) {
-		if(mBound) {
             mDadsPlayer.pause();
-		}
 	}
     
     public void nextSong(View v) {
@@ -308,8 +300,6 @@ public class MainActivity extends Activity
         mDadsPlayer.prevSong();
     }
 	
-	//*************************************************
-	//Below is a grouping of test functions
 	public void songPicker(View v) {
         //temporary
         //indexMusic needs to be moved to the background
@@ -323,7 +313,7 @@ public class MainActivity extends Activity
         final ArrayList<Song> mSongss = new ArrayList<Song>();
         final ArrayList<Song> mSelectedSongs = new ArrayList<Song>();
         Song mSong = new Song();
-	
+        
 		dialog.setContentView(R.layout.songpicker);
 		dialog.setTitle("Song Selection");
 		dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.FILL_PARENT;
@@ -335,8 +325,10 @@ public class MainActivity extends Activity
 		final Button mBOK = (Button)dialog.findViewById(R.id.OK);
 		final Button mCancel = (Button)dialog.findViewById(R.id.Cancel);
 		
-		
-		if(pDirs != null && !(mSongs.size() > 0)) {
+		mSongs.clear();
+        mSongss.clear();
+		if(pDirs != null) {
+            System.out.println("size " + pDirs.size());
             System.out.println("making songs");
 			for(String s : pDirs) {
 				for(String t : new File(s).list(musicFilter)) {
@@ -349,11 +341,11 @@ public class MainActivity extends Activity
 			}
 		}
 		
-		final ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSongs);
+		final ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,mSongs);
 		
-			if(lv != null) {
-				lv.setAdapter(mAdapter);
-			}
+		if(lv != null) {
+		    lv.setAdapter(mAdapter);
+		}
 		//Ok can't be picked without making a selection in
 		//the ListView
 		mBOK.setEnabled(false);
@@ -370,11 +362,8 @@ public class MainActivity extends Activity
 			public void onClick(View v) {
                 mDadsPlayer.setMSongs(mSelectedSongs);
                 mSelectedSongs.clear();
-                mAdapter.clear();
-                mAdapter.notifyDataSetChanged();
-                lv.invalidateViews();
 				dialog.dismiss();
-			}
+            }
 		});
 		
 		mCancel.setOnClickListener(new OnClickListener() {
@@ -416,7 +405,8 @@ public class MainActivity extends Activity
 					case 0:
 						mBundle = msg.getData();
 						 mIndex = mBundle.getStringArrayList("Files");
-						for(String s: mIndex) {
+						 pDirs.clear();
+                         for(String s: mIndex) {
 							//System.out.println(s);
 							pDirs.add(s);
 						}
