@@ -328,7 +328,6 @@ public class MainActivity extends Activity
 			mHandler = pSV.getPHandler();
 			mConnection = pSV.getPConnection();
             mIsPaused = savedInstanceState.getBoolean("paused");
-            System.out.println("Test");
             System.out.print(pSV.getOutput());
 		}
 		
