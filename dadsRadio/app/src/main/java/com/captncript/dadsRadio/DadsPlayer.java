@@ -247,7 +247,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         }
     }
     
-	public String testing(){
+	public String dadPlay(){
 		String mPrepped = null;
 		
 		//Initialize mp1

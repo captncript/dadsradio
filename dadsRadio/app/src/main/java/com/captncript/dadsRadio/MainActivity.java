@@ -53,6 +53,20 @@ public class MainActivity extends Activity
 	private Handler mHandler = null;
 	private ArrayList<String> pDirs = new ArrayList<String>();
 	
+    FilenameFilter musicFilter = new FilenameFilter() {
+        @Override
+        public boolean accept(File p1, String name) {
+            //Add other sound files
+            String lowerName = name.toLowerCase();
+
+            if(lowerName.endsWith(".mp3") && !lowerName.startsWith("com.")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+	};
+    
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
 		@Override
@@ -72,16 +86,213 @@ public class MainActivity extends Activity
 			}
 			System.out.println("bound: " + mBound);
 		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName p1)
-		{
-			System.out.println("service disconnected");
-			mBound = false;
-			et.setText("Service Disconnected");
-		}
+        
+        @Override
+        public void onServiceDisconnected(ComponentName p1)
+        {
+            System.out.println("service disconnected");
+            mBound = false;
+            et.setText("Service Disconnected");
+        }
 
 	};
+
+    public void cleanUp(View v) {
+        //This doesn't display and
+        //locks down the program
+        //Might remove
+        System.out.println("Main:cleanUp");
+        try {
+            et.setText("Cleaning up");
+            System.out.println(et.getText());
+        } catch(Exception e) {
+            System.out.println(e);
+        }
+        //This releases all remaining
+        //media players
+        mDadsPlayer.cleanUp();
+
+        System.out.println("Main:Clean");
+
+        et.setText("Clean");
+    }
+        
+    public void findSongs(String mDescriptor, int mFlag) {
+        //This is for only a single descriptor
+        //mDescriptor is artist or song name
+        //mFlag indicates, which was sent
+        System.out.println("FindSongs: start");
+
+        if(mFlag == ARTIST) {
+            //TODO: make this find songs by artist
+            //name
+        } else if(mFlag == SONG) {
+            //TODO: make this find songs by
+            //song name
+        }
+
+        startPlaying();
+    }
+
+    public void findSongs(String mDescriptors[]) {
+        //mDescriptors comes in with both artist and song name
+        startPlaying();
+    }
+    
+    public String getOutput() {
+        /* May be causing a delay.
+        grabs up to 500 characters 
+        from the output file and saves
+        to be written when file is
+        recreated. Called from 
+        onSaveInstanceState */
+        
+        String output = new String();
+        char[] buffer = new char[500];
+        File file = new File(OUT_FILE_PATH);
+        
+        try {
+            FileReader fr = new FileReader(file);
+            fr.read(buffer);
+        } catch (FileNotFoundException e) {
+            Log.e("File Read", "Can't find the file");
+        } catch (IOException e) {
+            Log.e("File Read", "io exception");
+        }
+
+        if(buffer != null) {
+            for(char c : buffer) {
+                output += c;
+            }
+        }
+        
+        return output;
+    }
+    
+    private void indexMusic() {
+        System.out.println("Indexing");
+        et.setText("Finding Songs");
+        //TODO: Make this store data somewhere
+        //      Come up with conditions to run this
+        final Handler mIndexHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                Bundle mBundle = null;
+                ArrayList<String> mIndex = null;
+
+                try {
+                    switch(msg.what) {
+                        case 0:
+                            mBundle = msg.getData();
+                            mIndex = mBundle.getStringArrayList("Files");
+                            pDirs.clear();
+                            for(String s: mIndex) {
+                                //System.out.println(s);
+                                pDirs.add(s);
+                            }
+                            et.setText("index complete");
+
+                            songDisplay();      
+                            break;
+                        case 1:
+                            //For Updates
+                            System.out.println((String)msg.obj);
+                            //et.setText((String)msg.obj);
+                            break;
+                    }
+                }catch(Exception e){
+                    System.out.println(e);
+                }
+            }
+        };
+        System.out.println("Starting new thread");
+
+        new Thread(new Runnable() {
+                ArrayList<String> mIndexes = new ArrayList<String>();
+                ArrayList<String> mIndexDirs = new ArrayList<String>();
+                ArrayList<String> mDirs = new ArrayList<String>();
+
+                Bundle mBundle = new Bundle();
+
+                int mCounter = 0;
+                int mDirCount = 0;
+
+                String lastDir = new String();
+
+                boolean once = true;
+
+                @Override
+                public void run() {
+                    File file = new File("/storage");
+                    Message m = Message.obtain(mIndexHandler,1,"Building");
+                    m.sendToTarget();
+
+                    try{
+                        fileCrawler(file);
+                    } catch(Exception e) {
+                        System.out.println(e);
+                    }
+                    System.out.println("crawled");
+                    try {
+                        mBundle.putStringArrayList("Files",mIndexDirs);
+                        Message mMessage = Message.obtain(mIndexHandler, 0);
+                        mMessage.arg1 = mCounter;
+                        mMessage.setData(mBundle);
+                        mMessage.sendToTarget();
+                    }catch(Exception e) {
+                        System.out.println(e);
+                    }
+                    try
+                    {
+                        Thread.currentThread().join();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        System.out.println(e);
+                    }
+                }
+
+                public void fileCrawler(File mFile) {
+                    /*
+                     Recursive function drills down
+                     through all files looking for music 
+                     files.
+                     */
+                    File mFiles[] = null;
+                    File indexFiles[] = null;
+
+                    if(mFile != null) {
+                        mFiles = mFile.listFiles();
+                        indexFiles = mFile.listFiles(musicFilter);
+                    }
+
+                    if (mFiles != null) {
+                        for(File f: mFiles) {
+                            if(f.isDirectory()) {
+                                mDirs.add(f.toString());
+                                mDirCount++;
+                            }
+                            mIndexes.add(f.toString());
+                            mCounter++;
+                            fileCrawler(f);
+                        }
+                    }
+                    if(indexFiles != null) {
+                        for(File f : indexFiles) {
+                            String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
+                            if(!mPathToFile.equals(lastDir)) {
+                                mIndexDirs.add(mPathToFile);
+                                lastDir = mPathToFile;
+                            }
+                        }
+
+                    }
+                }
+            }).start();
+	}
+
+    public void nextSong(View v) {
+        mDadsPlayer.nextSong();
+    }
 	
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -117,6 +328,8 @@ public class MainActivity extends Activity
 			mHandler = pSV.getPHandler();
 			mConnection = pSV.getPConnection();
             mIsPaused = savedInstanceState.getBoolean("paused");
+            System.out.println("Test");
+            System.out.print(pSV.getOutput());
 		}
 		
 		if(mDadsPlayer == null) {
@@ -127,36 +340,25 @@ public class MainActivity extends Activity
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        startBinding();
+        outputSetup();
+    }
+    
+    @Override
     protected void onSaveInstanceState(Bundle outState)
     {
         outState.putBoolean("paused", mIsPaused);
+        pSV.setOutput(getOutput());
+        
         super.onSaveInstanceState(outState);
     }
 
-    
-    
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-
-		startBinding();
-		outputSetup();
-	}
-	
 	@Override
 	protected void onStop()
 	{
-		System.out.println("Unbinding service");
-		if(mBound) {
-			try{
-				unbindService(mConnection);
-			} catch(Exception e) {
-				//This will need to be changed to a specific
-				//type of exception or removed
-				System.out.println(e);
-			}
-		}
-		
 		super.onStop();
 	}
 	
@@ -183,6 +385,46 @@ public class MainActivity extends Activity
 
 	}
 	
+    public void pause(View v) {
+        mDadsPlayer.pause();
+    }
+    
+    public void play(View v) {
+
+        if(mHandler == null) {
+            mHandler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    switch(msg.what) {
+                        case PAUSE:
+                            if(mIsPaused == false) {
+                                et.setText("Paused");
+                                mIsPaused = true;
+                            } else {
+                                et.setText("Playing");
+                                mIsPaused = false;
+                            }
+                            break;
+                    }
+                }
+            };
+        }
+        pSV.setPHandler(mHandler);
+        mDadsPlayer.setHandler(mHandler);
+
+        System.out.println(mIsPaused);
+        if(mIsPaused == false) {
+            startPlaying();
+        } else {
+            mIsPaused = false;
+            mDadsPlayer.pause();
+        }
+	}
+    
+    public void prevSong(View v) {
+        mDadsPlayer.prevSong();
+    }
+	
 	public void startBinding() {
 		//This should be called when starting 
 		//to bind the service for general use
@@ -203,7 +445,7 @@ public class MainActivity extends Activity
 				@Override
 				public void run() {
 					try{
-						String foo = mDadsPlayer.testing();
+						String foo = mDadsPlayer.dadPlay();
 						if(foo != null) {
 							System.out.println("Errors with prep: " + foo);
 						}
@@ -213,92 +455,6 @@ public class MainActivity extends Activity
 				}
 			}).start();
 	}
-	
-	public void findSongs(String mDescriptor, int mFlag) {
-		//This is for only a single descriptor
-		//mDescriptor is artist or song name
-		//mFlag indicates, which was sent
-		System.out.println("FindSongs: start");
-		
-		if(mFlag == ARTIST) {
-			//TODO: make this find songs by artist
-			//name
-		} else if(mFlag == SONG) {
-			//TODO: make this find songs by
-			//song name
-		}
-		
-		startPlaying();
-	}
-	
-	public void findSongs(String mDescriptors[]) {
-		//mDescriptors comes in with both artist and song name
-		startPlaying();
-	}
-	
-	public void play(View v) {
-        
-		if(mHandler == null) {
-			mHandler = new Handler() {
-				@Override
-				public void handleMessage(Message msg) {
-					switch(msg.what) {
-						case PAUSE:
-							if(mIsPaused == false) {
-								et.setText("Paused");
-								mIsPaused = true;
-							} else {
-								et.setText("Playing");
-								mIsPaused = false;
-							}
-                        break;
-					}
-				}
-			};
-		}
-		pSV.setPHandler(mHandler);
-		mDadsPlayer.setHandler(mHandler);
-		
-        System.out.println(mIsPaused);
-        if(mIsPaused == false) {
-		    startPlaying();
-        } else {
-            mIsPaused = false;
-            mDadsPlayer.pause();
-        }
-	}
-	
-	public void cleanUp(View v) {
-		//This doesn't display and
-		//locks down the program
-        //Might remove
-		System.out.println("Main:cleanUp");
-		try {
-			et.setText("Cleaning up");
-			System.out.println(et.getText());
-		} catch(Exception e) {
-			System.out.println(e);
-		}
-		//This releases all remaining
-		//media players
-		mDadsPlayer.cleanUp();
-		
-		System.out.println("Main:Clean");
-		
-		et.setText("Clean");
-	}
-	
-	public void pause(View v) {
-            mDadsPlayer.pause();
-	}
-    
-    public void nextSong(View v) {
-        mDadsPlayer.nextSong();
-    }
-    
-    public void prevSong(View v) {
-        mDadsPlayer.prevSong();
-    }
 	
 	public void songPicker(View v) {
         //temporary
@@ -375,140 +531,12 @@ public class MainActivity extends Activity
 			
 		dialog.show();
 	}
-	
-	FilenameFilter musicFilter = new FilenameFilter() {
-		@Override
-		public boolean accept(File p1, String name) {
-			//Add other sound files
-			String lowerName = name.toLowerCase();
-
-			if(lowerName.endsWith(".mp3") && !lowerName.startsWith("com.")) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	};
-	
-	private void indexMusic() {
-		System.out.println("Indexing");
-		et.setText("Finding Songs");
-		//TODO: Make this store data somewhere
-		//      Come up with conditions to run this
-		final Handler mIndexHandler = new Handler() {
-			public void handleMessage(Message msg) {
-				Bundle mBundle = null;
-				ArrayList<String> mIndex = null;
-				
-				try {
-				switch(msg.what) {
-					case 0:
-						mBundle = msg.getData();
-						 mIndex = mBundle.getStringArrayList("Files");
-						 pDirs.clear();
-                         for(String s: mIndex) {
-							//System.out.println(s);
-							pDirs.add(s);
-						}
-						et.setText("index complete");
-						
-						songDisplay();		
-					break;
-					case 1:
-						//For Updates
-						System.out.println((String)msg.obj);
-						//et.setText((String)msg.obj);
-					break;
-				}
-				}catch(Exception e){
-					System.out.println(e);
-				}
-			}
-		};
-		System.out.println("Starting new thread");
-		
-		new Thread(new Runnable() {
-			ArrayList<String> mIndexes = new ArrayList<String>();
-			ArrayList<String> mIndexDirs = new ArrayList<String>();
-			ArrayList<String> mDirs = new ArrayList<String>();
-			
-			Bundle mBundle = new Bundle();
-			
-			int mCounter = 0;
-			int mDirCount = 0;
-			
-			String lastDir = new String();
-			
-			boolean once = true;
-			
-			@Override
-			public void run() {
-				File file = new File("/storage");
-				Message m = Message.obtain(mIndexHandler,1,"Building");
-				m.sendToTarget();
-
-				try{
-					fileCrawler(file);
-				} catch(Exception e) {
-					System.out.println(e);
-				}
-				System.out.println("crawled");
-				try {
-					mBundle.putStringArrayList("Files",mIndexDirs);
-					Message mMessage = Message.obtain(mIndexHandler, 0);
-					mMessage.arg1 = mCounter;
-					mMessage.setData(mBundle);
-					mMessage.sendToTarget();
-				}catch(Exception e) {
-					System.out.println(e);
-				}
-				try
-				{
-					Thread.currentThread().join();
-				}
-				catch (InterruptedException e)
-				{
-					System.out.println(e);
-				}
-			}
-			
-			public void fileCrawler(File mFile) {
-				/*
-				    Recursive function drills down
-					through all files looking for music 
-					files.
-				*/
-				File mFiles[] = null;
-				File indexFiles[] = null;
-				
-				if(mFile != null) {
-					mFiles = mFile.listFiles();
-					indexFiles = mFile.listFiles(musicFilter);
-				}
-				
-				if (mFiles != null) {
-					for(File f: mFiles) {
-						if(f.isDirectory()) {
-							mDirs.add(f.toString());
-							mDirCount++;
-						}
-						mIndexes.add(f.toString());
-						mCounter++;
-						fileCrawler(f);
-					}
-				}
-				if(indexFiles != null) {
-					for(File f : indexFiles) {
-						String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
-						if(!mPathToFile.equals(lastDir)) {
-							mIndexDirs.add(mPathToFile);
-							lastDir = mPathToFile;
-						}
-					}
-
-				}
-			}
-		}).start();
-	}
-	
+    
+    public void test(View v) {
+        //This responds to test button
+        //and should be removed in production
+        
+        System.out.println(getOutput());
+    }
+    
 }
