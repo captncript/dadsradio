@@ -306,15 +306,13 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			mp2.release();
 			mp2 = null;
 		}
-		
+        
 		System.out.println("DadsPlayer: clean");
 		
-		try
-		{
+		try {
 			Thread.currentThread().join();
 		}
-		catch (InterruptedException e)
-		{
+		catch (InterruptedException e) {
 			System.out.println("Interrupted: " + e.toString());
 		}
 		
