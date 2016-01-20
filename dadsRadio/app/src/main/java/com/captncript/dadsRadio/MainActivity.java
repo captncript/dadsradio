@@ -17,8 +17,8 @@ import android.view.View.OnClickListener;
 	TODO:
 	
    -Add basic radio playing functions(seek)
-   -Test reading output file and storing in fragment to keep info
    -Change buttons to symbols
+   -Clean out displaying .mp3 in name
    -Add voice control
 */
 
@@ -32,7 +32,9 @@ public class MainActivity extends Activity
 	public static final int ARTIST = 1;
 	public static final int SONG = 2;
 	public static final int REQUEST_MEDIA = 3;
+    
     public static final int PAUSE = 0;
+    public static final int SONG_NAME = 1;
 	
 	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/DadsRadio/dadsradio/app/output";
 	
@@ -49,6 +51,8 @@ public class MainActivity extends Activity
 	boolean mIsPaused = false;
 	boolean mFragExists = false;
 	boolean mReOpened = false;
+    
+    String songName = new String();
     
 	private Handler mHandler = null;
 	private ArrayList<String> pDirs = new ArrayList<String>();
@@ -192,12 +196,12 @@ public class MainActivity extends Activity
                             et.setText("index complete");
 
                             songDisplay();      
-                            break;
+                        break;
+                        
                         case 1:
                             //For Updates
                             System.out.println((String)msg.obj);
-                            //et.setText((String)msg.obj);
-                            break;
+                        break;
                     }
                 }catch(Exception e){
                     System.out.println(e);
@@ -400,10 +404,16 @@ public class MainActivity extends Activity
                                 et.setText("Paused");
                                 mIsPaused = true;
                             } else {
-                                et.setText("Playing");
+                                et.setText(songName);
                                 mIsPaused = false;
                             }
-                            break;
+                        break;
+                        
+                        case SONG_NAME:
+                            Bundle mBundle = msg.getData();
+                            songName = mBundle.getString("name");
+                            et.setText(songName);
+                        break;
                     }
                 }
             };
@@ -483,8 +493,6 @@ public class MainActivity extends Activity
 		mSongs.clear();
         mSongss.clear();
 		if(pDirs != null) {
-            System.out.println("size " + pDirs.size());
-            System.out.println("making songs");
 			for(String s : pDirs) {
 				for(String t : new File(s).list(musicFilter)) {
 					mSongs.add(t);

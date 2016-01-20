@@ -28,6 +28,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	private String aSyncError = null;
 	
 	private static final int PAUSE = 0;
+    public static final int SONG_NAME = 1;
+    
     public int songPlaying = 0;
 	
 	private boolean isM1Playing = false;
@@ -178,6 +180,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
                 } else {
                     cleanUp();
+                    pIsComplete = true;
                 }
             }
             catch (SecurityException e) {
@@ -194,7 +197,15 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             }
 
             try {
-                mp2.prepare();
+                if(!pIsComplete) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("name",mSongs.get(songPlaying).getName());
+
+                    Message msg = Message.obtain(pHandler,SONG_NAME);
+                    msg.setData(bundle);
+                    msg.sendToTarget();
+                    mp2.prepare();
+                }
             }
             catch (IllegalStateException e) {
                 System.out.println("mp2 prepare: " + e.toString());
@@ -202,7 +213,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             catch (IOException e) {
                 System.out.println("mp2 prepare: " + e.toString());
             }
-            mp1.stop();
+            if(!pIsComplete) {
+                mp1.stop();
+            }
         } else if(isM2Playing) {
             System.out.println("Starting first sound");
 
@@ -213,43 +226,53 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
                 } else {
                     cleanUp();
+                    pIsComplete = true;
                 }
             }
-            catch (SecurityException e)
-            {
+            catch (SecurityException e) {
                 System.out.println("mp1 set: " + e.toString());
             }
-            catch (IllegalArgumentException e)
-            {
+            catch (IllegalArgumentException e) {
                 System.out.println("mp1 set: " + e.toString());
             }
-            catch (IllegalStateException e)
-            {
+            catch (IllegalStateException e) {
                 System.out.println("mp1 set: " + e.toString());
             }
-            catch (IOException e)
-            {
+            catch (IOException e) {
                 System.out.println("mp1 set: " + e.toString());
             }
-            try
-            {
-                mp1.prepare();
+            
+            
+            try {
+                if(!pIsComplete) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("name",mSongs.get(songPlaying).getName());
+
+                    Message msg = Message.obtain(pHandler, SONG_NAME);
+                    msg.setData(bundle);
+                    msg.sendToTarget();
+                    mp1.prepare();
+                }
             }
-            catch (IllegalStateException e)
-            {
+            catch (IllegalStateException e) {
                 System.out.println("mp1 prepare: " + e.toString());
             }
-            catch (IOException e)
-            {
+            catch (IOException e) {
                 System.out.println("mp1 prepare: " + e.toString());
             }
-            mp2.stop();
+            if(!pIsComplete) {
+                //rewrite this so both are grouped
+                //move piscomplete = true to cleanup
+                mp2.stop();
+            }
         }
     }
     
 	public String dadPlay(){
 		String mPrepped = null;
 		
+        pIsComplete = false;
+        
 		//Initialize mp1
 		mp1 = new MediaPlayer();
 		
@@ -270,7 +293,13 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		try
 		{
 			mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(0).toString()));
-			mp1.prepare();
+			Bundle bundle = new Bundle();
+            bundle.putString("name",mSongs.get(0).getName());
+            
+            Message msg = Message.obtain(pHandler,SONG_NAME);
+            msg.setData(bundle);
+            msg.sendToTarget();
+            mp1.prepare();
 		}
 		catch (SecurityException e)
 		{
@@ -310,9 +339,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		System.out.println("DadsPlayer: clean");
 		
 		try {
-			Thread.currentThread().join();
-		}
-		catch (InterruptedException e) {
+			Thread.currentThread().join(100);
+		} catch (InterruptedException e) {
 			System.out.println("Interrupted: " + e.toString());
 		}
 		
