@@ -12,13 +12,17 @@ import java.io.*;
 import java.util.*;
 
 import android.view.View.OnClickListener;
+import java.text.*;
+import java.math.*;
+import android.graphics.*;
 
 /*
 	TODO:
-	
-   -Add basic radio playing functions(seek)
+
    -Change buttons to symbols
    -Clean out displaying .mp3 in name
+   -Add playlist support
+   -Add caching
    -Add voice control
 */
 
@@ -310,8 +314,6 @@ public class MainActivity extends Activity
 		
 		et =  (EditText)findViewById(R.id.display);
 		pPauseButton = (Button)findViewById(R.id.pause);
-		
-
 		/*
 		 DAD NOTE:
 		 Runs a setup for outputting
@@ -420,8 +422,7 @@ public class MainActivity extends Activity
         }
         pSV.setPHandler(mHandler);
         mDadsPlayer.setHandler(mHandler);
-
-        System.out.println(mIsPaused);
+        
         if(mIsPaused == false) {
             startPlaying();
         } else {
@@ -542,8 +543,6 @@ public class MainActivity extends Activity
     public void test(View v) {
         //This responds to test button
         //and should be removed in production
-        
-        System.out.println(getOutput());
     }
     
 }

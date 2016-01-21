@@ -345,5 +345,4 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		}
 		
 	}
-	
 }
