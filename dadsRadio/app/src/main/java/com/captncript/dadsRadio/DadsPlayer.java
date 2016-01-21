@@ -335,7 +335,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			mp2.release();
 			mp2 = null;
 		}
-        
+        songPlaying = 0;
+        mSongs.clear();
 		System.out.println("DadsPlayer: clean");
 		
 		try {
