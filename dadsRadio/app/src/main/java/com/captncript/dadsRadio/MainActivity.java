@@ -1,23 +1,39 @@
 package com.captncript.dadsRadio;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.util.*;
-import android.view.*;
-import android.view.View.*;
-import android.widget.*;
-import android.widget.AdapterView.*;
-import java.io.*;
-import java.util.*;
-
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.FragmentManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.util.Log;
+import android.view.View;
 import android.view.View.OnClickListener;
-import java.text.*;
-import java.math.*;
-import android.graphics.*;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import android.provider.MediaStore;
 
 /*
 	TODO:
+    02-19-16
+    19:45
 
    -Change buttons to symbols
    -Clean out displaying .mp3 in name
@@ -67,7 +83,7 @@ public class MainActivity extends Activity
             //Add other sound files
             String lowerName = name.toLowerCase();
 
-            if(lowerName.endsWith(".mp3") && !lowerName.startsWith("com.")) {
+            if(lowerName.endsWith(".mp3") && !lowerName.startsWith("com.") && !lowerName.contains("Legacy")) {
                 return true;
             } else {
                 return false;
@@ -234,7 +250,8 @@ public class MainActivity extends Activity
                     Message m = Message.obtain(mIndexHandler,1,"Building");
                     m.sendToTarget();
 
-                    try{
+                    try {
+                        //This try needs to be removed
                         fileCrawler(file);
                     } catch(Exception e) {
                         System.out.println(e);
@@ -249,12 +266,10 @@ public class MainActivity extends Activity
                     }catch(Exception e) {
                         System.out.println(e);
                     }
-                    try
-                    {
+                    try {
                         Thread.currentThread().join();
                     }
-                    catch (InterruptedException e)
-                    {
+                    catch (InterruptedException e) {
                         System.out.println(e);
                     }
                 }
@@ -287,7 +302,7 @@ public class MainActivity extends Activity
                     if(indexFiles != null) {
                         for(File f : indexFiles) {
                             String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
-                            if(!mPathToFile.equals(lastDir)) {
+                            if(!mPathToFile.equals(lastDir) && !mPathToFile.toLowerCase().contains("legacy")) {
                                 mIndexDirs.add(mPathToFile);
                                 lastDir = mPathToFile;
                             }
@@ -299,7 +314,9 @@ public class MainActivity extends Activity
 	}
 
     public void nextSong(View v) {
-        mDadsPlayer.nextSong();
+        if(mBound) {
+            mDadsPlayer.nextSong();
+        }
     }
 	
     @Override
@@ -543,6 +560,7 @@ public class MainActivity extends Activity
     public void test(View v) {
         //This responds to test button
         //and should be removed in production
+       // MediaStore.
     }
     
 }
