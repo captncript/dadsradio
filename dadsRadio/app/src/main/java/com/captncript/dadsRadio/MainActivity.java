@@ -448,6 +448,17 @@ public class MainActivity extends Activity
         }
 	}
     
+    public void playlist(View v) {
+        System.out.println("MainActivity: playlist");
+        Log.e("Dadsradio","Building intent");
+        Intent mIntent = new Intent(this,PlaylistEditor.class);
+        try {
+            startActivity(mIntent);
+        } catch(Exception e) {
+            System.out.println(e);
+        }
+    }
+    
     public void prevSong(View v) {
         mDadsPlayer.prevSong();
     }

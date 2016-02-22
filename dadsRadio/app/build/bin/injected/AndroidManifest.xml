@@ -40,6 +40,11 @@
 
 		</activity>
 
+		<activity
+			android:name="com.captncript.dadsRadio.PlaylistEditor">
+
+		</activity>
+
 	</application>
 
 </manifest>

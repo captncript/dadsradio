@@ -14,24 +14,29 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int Cancel=0x7f060009;
-        public static final int OK=0x7f060008;
-        public static final int Songs=0x7f060007;
+        public static final int Cancel=0x7f06000d;
+        public static final int OK=0x7f06000c;
+        public static final int Songs=0x7f06000b;
+        public static final int allSongs=0x7f060009;
         public static final int display=0x7f060000;
         public static final int next=0x7f060003;
         public static final int pause=0x7f060002;
         public static final int picker=0x7f060005;
         public static final int play=0x7f060001;
+        public static final int playlist=0x7f060006;
+        public static final int playlistName=0x7f060008;
+        public static final int playlistSongs=0x7f06000a;
         public static final int prev=0x7f060004;
-        public static final int test=0x7f060006;
+        public static final int test=0x7f060007;
     }
     public static final class layout {
         public static final int main=0x7f030000;
-        public static final int songpicker=0x7f030001;
+        public static final int playlist=0x7f030001;
+        public static final int songpicker=0x7f030002;
     }
     public static final class string {
+        public static final int TAG=0x7f040001;
         public static final int app_name=0x7f040000;
-        public static final int hello_world=0x7f040001;
     }
     public static final class style {
         public static final int AppTheme=0x7f050000;
