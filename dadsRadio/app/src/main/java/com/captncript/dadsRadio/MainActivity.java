@@ -28,7 +28,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import android.provider.MediaStore;
 
 /*
 	TODO:
@@ -571,7 +570,14 @@ public class MainActivity extends Activity
     public void test(View v) {
         //This responds to test button
         //and should be removed in production
-       // MediaStore.
+        Playlist mPlaylist = new Playlist(this);
+        
+        System.out.println("Calling test");
+        Log.d("DadsRadio","Calling test");
+        mPlaylist.test();
+        System.out.println("Finished");
+        Log.d("DadsRadio","Finished");
+        
     }
     
 }

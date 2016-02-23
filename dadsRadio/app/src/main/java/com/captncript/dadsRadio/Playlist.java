@@ -1,7 +1,12 @@
 package com.captncript.dadsRadio;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.widget.Toast;
 import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
@@ -9,7 +14,7 @@ public class Playlist {
     private String pName;
     private int pCount;
     private ArrayList<Song> pSongs;
-    
+    private Context pApplicationContext;
     public void addSong(Song song) {
         pSongs.add(song);
         pCount++;
@@ -31,12 +36,14 @@ public class Playlist {
         return this.pSongs;
     }
     
-    public Playlist() {
+    public Playlist(Context context) {
         pCount = 0;
+        this.pApplicationContext = context;
     }
     
-    public Playlist(String name) {
+    public Playlist(String name, Context context) {
         this.pName = name;
+        this.pApplicationContext = context;
         pCount = 0;
     }
     
@@ -52,7 +59,34 @@ public class Playlist {
         this.pName = name;
     }
     
-    public void write() {
-        //OutputStream os = new BufferedOutputStream();
+    public void write() throws FileNotFoundException {
+        /*
+            Requires pName to be set
+            Writes file with pName as file name
+            Appends to masterList all list names
+            
+            TODO: make a database thats connected to a cursor?
+        */
+        OutputStream os = new BufferedOutputStream(pApplicationContext.openFileOutput(pName,Context.MODE_APPEND));
+    }
+    
+    public void test() {
+        //Learn to use a cursor loader
+        Uri mUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String[] projection = null;
+        String selection = null;
+        String[] selectionArgs = null;
+        
+        Cursor mcursor = pApplicationContext.getContentResolver().query(mUri,projection,selection,selectionArgs,null);
+        
+        if(mcursor != null) {
+            mcursor.moveToFirst();
+            
+            for(String s : mcursor.getColumnNames()) {
+                System.out.println(s);
+            }
+        } else {
+            Toast.makeText(pApplicationContext,"no data",Toast.LENGTH_SHORT).show();
+        }
     }
 }
