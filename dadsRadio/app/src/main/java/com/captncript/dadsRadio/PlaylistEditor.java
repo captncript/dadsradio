@@ -30,4 +30,14 @@ public class PlaylistEditor extends Activity {
         //pTV.setText(playlistName);
     }
     
+    private void loadAllSongs() {
+        //This will populate the left layout
+        //allSongs with all songs except those in
+        //the playlist
+    }
+    
+    private void loadPlaylist() {
+        //Populate a playlist to check against allSongs
+        //Fill in right panel
+    }
 }

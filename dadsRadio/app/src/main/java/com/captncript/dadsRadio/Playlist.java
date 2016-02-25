@@ -1,16 +1,15 @@
 package com.captncript.dadsRadio;
 
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.widget.Toast;
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
-public class Playlist {
+public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     private String pName;
     private int pCount;
     private ArrayList<Song> pSongs;
@@ -59,15 +58,15 @@ public class Playlist {
         this.pName = name;
     }
     
-    public void write() throws FileNotFoundException {
+    public void write() {
         /*
             Requires pName to be set
             Writes file with pName as file name
             Appends to masterList all list names
             
             TODO: make a database thats connected to a cursor?
+            SQLiteOpenHelper
         */
-        OutputStream os = new BufferedOutputStream(pApplicationContext.openFileOutput(pName,Context.MODE_APPEND));
     }
     
     public void test() {
@@ -88,5 +87,13 @@ public class Playlist {
         } else {
             Toast.makeText(pApplicationContext,"no data",Toast.LENGTH_SHORT).show();
         }
+        
+        CursorLoader mCursorLoader = new CursorLoader(pApplicationContext);
+        mCursorLoader.setUri(mUri);
+        mCursorLoader.setProjection(projection);
+        mCursorLoader.setSelection(selection);
+        mCursorLoader.setSelectionArgs(selectionArgs);
+        mCursorLoader.setSortOrder(null);
+        
     }
 }
