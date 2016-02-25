@@ -1,5 +1,9 @@
 [
     {
+        "merged": "C:\\Users\\Nick\\AndroidApps\\dadsradio\\dadsRadio\\app\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\ic_launcher.png",
+        "source": "C:\\Users\\Nick\\AndroidApps\\dadsradio\\dadsRadio\\app\\src\\main\\res\\drawable-hdpi\\ic_launcher.png"
+    },
+    {
         "merged": "C:\\Users\\Nick\\AndroidApps\\DadsRadio\\dadsradio\\dadsRadio\\app\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\ic_launcher.png",
         "source": "C:\\Users\\Nick\\AndroidApps\\DadsRadio\\dadsradio\\dadsRadio\\app\\src\\main\\res\\drawable-hdpi\\ic_launcher.png"
     }

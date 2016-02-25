@@ -4,18 +4,59 @@
     android:gravity="center"
 	android:background="#000000"
 	android:orientation="vertical">
-
 	<EditText
 		android:id="@+id/display"
 		android:text="Testing"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" 
 		android:background="#ffffff" />
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center" 
+		android:orientation="horizontal" >
+		<Button
+			android:id="@+id/play"
+			android:text="Play"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:onClick="play" />
+		<Button
+			android:id="@+id/pause"
+			android:text="Pause"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:onClick="pause"/>
+        <Button
+            android:id="@+id/next"
+            android:text="Next Song"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+			android:onClick="nextSong"/>
+        <Button
+            android:id="@+id/prev"
+            android:text="Prev Song"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+			android:onClick="prevSong"/>
+	</LinearLayout>
 	<Button
-		android:id="@+id/button1"
-		android:text="update"
+		android:id="@+id/picker"
+		android:text="Pick Song"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" 
-		android:onClick="update" />
+		android:layout_height="wrap_content"
+		android:onClick="songPicker" />
+    <Button
+        android:id="@+id/playlist"
+        android:text="Playlist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		android:onClick="playlist" />
+    <Button
+        android:id="@+id/test"
+        android:text="Test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		android:onClick="test" />
 
 </LinearLayout>

@@ -3,8 +3,10 @@ package com.captncript.dadsRadio;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.widget.Toast;
 import java.util.ArrayList;
@@ -39,7 +41,22 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         pCount = 0;
         this.pApplicationContext = context;
     }
-    
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
     public Playlist(String name, Context context) {
         this.pName = name;
         this.pApplicationContext = context;
@@ -76,12 +93,12 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         String selection = null;
         String[] selectionArgs = null;
         
-        Cursor mcursor = pApplicationContext.getContentResolver().query(mUri,projection,selection,selectionArgs,null);
+        Cursor mCursor = pApplicationContext.getContentResolver().query(mUri,projection,selection,selectionArgs,null);
         
-        if(mcursor != null) {
-            mcursor.moveToFirst();
+        if(mCursor != null) {
+            mCursor.moveToFirst();
             
-            for(String s : mcursor.getColumnNames()) {
+            for(String s : mCursor.getColumnNames()) {
                 System.out.println(s);
             }
         } else {
@@ -94,6 +111,6 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         mCursorLoader.setSelection(selection);
         mCursorLoader.setSelectionArgs(selectionArgs);
         mCursorLoader.setSortOrder(null);
-        
+        mCursor = mCursorLoader.loadInBackground();
     }
 }
