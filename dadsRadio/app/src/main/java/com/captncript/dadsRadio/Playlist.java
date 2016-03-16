@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -112,5 +113,11 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         mCursorLoader.setSelectionArgs(selectionArgs);
         mCursorLoader.setSortOrder(null);
         mCursor = mCursorLoader.loadInBackground();
+    }
+    
+    private void newPlaylist() {
+        PlaylistDatabase playlistDB = new PlaylistDatabase(pApplicationContext,pName);
+        SQLiteDatabase db = playlistDB.getWritableDatabase();
+        
     }
 }

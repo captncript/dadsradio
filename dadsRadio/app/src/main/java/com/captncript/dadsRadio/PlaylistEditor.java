@@ -2,9 +2,14 @@ package com.captncript.dadsRadio;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import java.util.ArrayList;
+import android.view.ViewGroup;
+import android.app.ActionBar;
+import android.widget.ActionMenuView;
+import android.view.Menu;
 
 public class PlaylistEditor extends Activity {
     private ArrayList<Song> pSongs = new ArrayList<Song>();
@@ -28,6 +33,15 @@ public class PlaylistEditor extends Activity {
        // playlistName = receivedIntent.getStringExtra("playlistName");
         
         //pTV.setText(playlistName);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        // TODO: Implement this method
+        getMenuInflater().inflate(R.menu.options,menu);
+        
+        return super.onCreateOptionsMenu(menu);
     }
     
     private void loadAllSongs() {
