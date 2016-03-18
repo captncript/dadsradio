@@ -31,8 +31,8 @@ import java.util.ArrayList;
 
 /*
 	TODO:
-    02-19-16
-    19:45
+    03-18-16
+    18:30
 
    -Change buttons to symbols
    -Clean out displaying .mp3 in name
@@ -451,6 +451,7 @@ public class MainActivity extends Activity
         System.out.println("MainActivity: playlist");
         Log.e("Dadsradio","Building intent");
         Intent mIntent = new Intent(this,PlaylistEditor.class);
+        
         try {
             startActivity(mIntent);
         } catch(Exception e) {
@@ -570,13 +571,6 @@ public class MainActivity extends Activity
     public void test(View v) {
         //This responds to test button
         //and should be removed in production
-        Playlist mPlaylist = new Playlist(this);
-        
-        System.out.println("Calling test");
-        Log.d("DadsRadio","Calling test");
-        mPlaylist.test();
-        System.out.println("Finished");
-        Log.d("DadsRadio","Finished");
         
     }
     

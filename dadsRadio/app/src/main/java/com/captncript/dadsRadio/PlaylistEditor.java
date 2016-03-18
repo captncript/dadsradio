@@ -1,22 +1,19 @@
 package com.captncript.dadsRadio;
 import android.app.Activity;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.LinearLayout;
+import android.view.Menu;
 import android.widget.ListView;
 import android.widget.TextView;
 import java.util.ArrayList;
-import android.view.ViewGroup;
-import android.app.ActionBar;
-import android.widget.ActionMenuView;
-import android.view.Menu;
 
 public class PlaylistEditor extends Activity {
     private ArrayList<Song> pSongs = new ArrayList<Song>();
-    private String playlistName;
+    private String playlistName = "testing"; //This is assigned only for testing
     private TextView pTV;
     private ListView pLV1,pLV2;
-    
+    private Playlist pPlaylist = new Playlist(playlistName, this);
     
     @Override
     protected void onStart()
@@ -30,6 +27,8 @@ public class PlaylistEditor extends Activity {
         pLV2 = (ListView)findViewById(R.id.playlistSongs);
         
         Intent receivedIntent = getIntent();
+        System.out.println("Loading manager");
+        getLoaderManager().initLoader(0,null,pPlaylist);
        // playlistName = receivedIntent.getStringExtra("playlistName");
         
         //pTV.setText(playlistName);

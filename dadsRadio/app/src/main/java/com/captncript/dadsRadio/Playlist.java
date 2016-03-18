@@ -9,14 +9,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     private String pName;
     private int pCount;
-    private ArrayList<Song> pSongs;
+    private ArrayList<Song> pSongs = new ArrayList<Song>();
     private Context pApplicationContext;
+    
     public void addSong(Song song) {
         pSongs.add(song);
         pCount++;
@@ -45,12 +47,34 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
+        Uri mUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String[] projection = null;
+        String selection = null;
+        String[] selectionArgs = null;
+        String sort = null;
+        
+        return new CursorLoader(pApplicationContext,mUri,projection,selection,selectionArgs,sort);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+        Song song;
+        data.moveToFirst(); // Moves to first row in the table
+        for(int i=0;i<data.getCount();i++) {
+            song = new Song();
+            if(data.getInt(data.getColumnIndex(MediaStore.Audio.AudioColumns.IS_MUSIC)) > 0) {
+                song.setName(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA)));
+                if(song != null) {
+                    addSong(song);
+                }
+            }
+            data.moveToNext();
+        }
+        Collections.shuffle(pSongs);
+        
+        for(Song s : pSongs) {
+            System.out.println(s.getName());
+        }
     }
 
     @Override
@@ -62,6 +86,8 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         this.pName = name;
         this.pApplicationContext = context;
         pCount = 0;
+        
+        System.out.println("Playlist Made");
     }
     
     public void removeSong(int position) {
@@ -87,37 +113,21 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         */
     }
     
-    public void test() {
-        //Learn to use a cursor loader
-        Uri mUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = null;
-        String selection = null;
-        String[] selectionArgs = null;
-        
-        Cursor mCursor = pApplicationContext.getContentResolver().query(mUri,projection,selection,selectionArgs,null);
-        
-        if(mCursor != null) {
-            mCursor.moveToFirst();
-            
-            for(String s : mCursor.getColumnNames()) {
-                System.out.println(s);
-            }
-        } else {
-            Toast.makeText(pApplicationContext,"no data",Toast.LENGTH_SHORT).show();
-        }
-        
-        CursorLoader mCursorLoader = new CursorLoader(pApplicationContext);
-        mCursorLoader.setUri(mUri);
-        mCursorLoader.setProjection(projection);
-        mCursorLoader.setSelection(selection);
-        mCursorLoader.setSelectionArgs(selectionArgs);
-        mCursorLoader.setSortOrder(null);
-        mCursor = mCursorLoader.loadInBackground();
-    }
-    
     private void newPlaylist() {
         PlaylistDatabase playlistDB = new PlaylistDatabase(pApplicationContext,pName);
         SQLiteDatabase db = playlistDB.getWritableDatabase();
         
+    }
+    
+    public ArrayList<String> getAllSongs(boolean random) {
+        ArrayList<String> songs = new ArrayList<String>();
+        
+        
+        if(random) {
+            Long seed = System.nanoTime();
+            Collections.shuffle(songs,new Random(seed));
+        }
+        
+        return songs;
     }
 }
