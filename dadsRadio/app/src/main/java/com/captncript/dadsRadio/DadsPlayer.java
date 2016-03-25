@@ -11,7 +11,8 @@ import java.util.*;
 
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
 MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
-	
+	// TODO: this needs some serious documentation
+    
 	private final IBinder mIBinder = new LocalBinder();
 	
 	MediaPlayer mp1 = null;
@@ -52,12 +53,15 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	public void setMSongs(File mSongs[]) {
-		for(File f : mSongs) {
+		//TODO: see if this can be removed
+        for(File f : mSongs) {
 			this.mSongs.add(f);
 		}
 	}
     
     public void setMSongs(ArrayList<Song> mSongs) {
+        //takes an arraylist of type Song
+        //Uses the file to play the song
         for(Song s : mSongs) {
             this.mSongs.add(s.getFile());
         }

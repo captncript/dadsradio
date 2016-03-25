@@ -8,7 +8,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -18,6 +21,9 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     private int pCount;
     private ArrayList<Song> pSongs = new ArrayList<Song>();
     private Context pApplicationContext;
+    
+    private Handler pHandler; //Should be set with setHandler
+    private int pCode; //This will be used in combination with the handler
     
     public void addSong(Song song) {
         pSongs.add(song);
@@ -51,7 +57,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         String[] projection = null;
         String selection = null;
         String[] selectionArgs = null;
-        String sort = null;
+        String sort = null;  //TODO: see if randomization can be moved to here
         
         return new CursorLoader(pApplicationContext,mUri,projection,selection,selectionArgs,sort);
     }
@@ -63,17 +69,16 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         for(int i=0;i<data.getCount();i++) {
             song = new Song();
             if(data.getInt(data.getColumnIndex(MediaStore.Audio.AudioColumns.IS_MUSIC)) > 0) {
-                song.setName(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA)));
+                song.setFile(new File(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA))));
                 if(song != null) {
                     addSong(song);
                 }
             }
             data.moveToNext();
         }
-        Collections.shuffle(pSongs);
-        
-        for(Song s : pSongs) {
-            System.out.println(s.getName());
+        if(pHandler != null) { //Runs if given a handler
+            Message msg = Message.obtain(pHandler,pCode);
+            msg.sendToTarget();
         }
     }
 
@@ -129,5 +134,14 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         }
         
         return songs;
+    }
+    
+    public void setHandler(Handler hand) {
+        this.pHandler = hand;
+    }
+    
+    public void setHandlerCode(int code) {
+        //Set the code for the "what" variable in the message to be returned
+        this.pCode = code;
     }
 }

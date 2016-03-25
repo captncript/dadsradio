@@ -28,11 +28,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /*
 	TODO:
-    03-18-16
-    18:30
+    03-24-16
+    21:00
 
    -Change buttons to symbols
    -Clean out displaying .mp3 in name
@@ -56,6 +57,9 @@ public class MainActivity extends Activity
     public static final int SONG_NAME = 1;
 	
 	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/DadsRadio/dadsradio/app/output";
+    
+    //playAllHandler Case(s)
+    public static final int PLAY_ALL_RANDOM = 0;
 	
 	//DAD NOTE: This variable will hold the text box
 	EditText et = null;
@@ -447,6 +451,30 @@ public class MainActivity extends Activity
         }
 	}
     
+    public void playAll(View v) {
+        //Grabs all music and plays in a random order
+        System.out.println("MainActivity: playAll");
+        final Playlist all = new Playlist(this); //Creates playlist object to get all songs
+
+        Handler playAllHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                switch(msg.what) {
+                    case PLAY_ALL_RANDOM:
+                        System.out.println("Mainactivity:playAllHandler:playAllRandom");
+                        ArrayList<Song> mSongs = all.getSongs();
+                        Collections.shuffle(mSongs);
+                        mDadsPlayer.setMSongs(mSongs);
+                        play(null);
+                        break;
+                }
+            }
+        };
+
+        all.setHandler(playAllHandler);
+        all.setHandlerCode(0); //replace with static
+        getLoaderManager().initLoader(0,null,all); //Starts the cursor loader finding music
+    }
+    
     public void playlist(View v) {
         System.out.println("MainActivity: playlist");
         Log.e("Dadsradio","Building intent");
@@ -492,13 +520,6 @@ public class MainActivity extends Activity
 					}
 				}
 			}).start();
-	}
-	
-	public void songPicker(View v) {
-        //temporary
-        //indexMusic needs to be moved to the background
-		System.out.println("Main:songPicker");
-		indexMusic();
 	}
 	
 	public void songDisplay() {
