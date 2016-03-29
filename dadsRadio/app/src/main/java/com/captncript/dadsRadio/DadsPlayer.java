@@ -80,8 +80,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	{
 		//This returns an iBinder to 
 		//communicate with the main activity
-		//mSongs.add(new File(SONG_URI));
-		//mSongs.add(new File(SONG_URI2));
 		
 		return mIBinder;
 	}
@@ -93,8 +91,10 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	@Override
 	public void onPrepared(MediaPlayer mp)
 	{
-		pIsPrepared = true;
-		System.out.println("onPrepared");
+        System.out.println("onPrepared");
+        
+		pIsPrepared = true; //TODO: is this used?
+		
 		//Calls method/function mp not service mp
 		if(mp != null && mp.equals(mp1)) {
 			System.out.println("mp equals mp1");
@@ -114,9 +114,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	@Override
 	public boolean onError(MediaPlayer p1, int p2, int p3)
 	{
-		// TODO: Implement this method
 		aSyncError = "onError: error caught by listener";
-		return false;
+		
+        return false;
 	}
 
 	@Override
@@ -129,6 +129,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	public void pause() {
+        System.out.println("DadsPlayer:pause");
+        
 		Message msg = null;
 		
 		if(isM1Playing) {
@@ -160,20 +162,22 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 		
     public void nextSong() {
-        System.out.println("Next song");
+        System.out.println("DadsPlayer:Next song");
         songPlaying++;
         
         songChange();
     }
     
     public void prevSong() {
-        System.out.println("Prev song");
+        System.out.println("DadsPlayer:Prev song");
         songPlaying--;
         
         songChange();
     }
     
     public void songChange() {
+        // TODO: switch to using strings/uris directly remove File variables
+        System.out.println("DadsPlayer:songChange");
         if(isM1Playing) {
             System.out.println("starting second sound");
             //Repeated make it a function?
@@ -205,7 +209,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     Bundle bundle = new Bundle();
                     bundle.putString("name",mSongs.get(songPlaying).getName());
 
-                    Message msg = Message.obtain(pHandler,SONG_NAME);
+                    Message msg = Message.obtain(pHandler,SONG_NAME); //Displays the songs name
                     msg.setData(bundle);
                     msg.sendToTarget();
                     mp2.prepare();
@@ -266,13 +270,14 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             }
             if(!pIsComplete) {
                 //rewrite this so both are grouped
-                //move piscomplete = true to cleanup
                 mp2.stop();
             }
         }
     }
     
-	public String dadPlay(){
+	public String dadPlay() {
+        //TODO: clean up formatting
+        System.out.println("DadsPlayer:dadPlay");
 		String mPrepped = null;
 		
         pIsComplete = false;

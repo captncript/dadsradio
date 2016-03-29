@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import android.widget.Toast;
 
 /*
 	TODO:
@@ -84,6 +85,7 @@ public class MainActivity extends Activity
         @Override
         public boolean accept(File p1, String name) {
             //Add other sound files
+            System.out.println("MainActivity:musicFilter:accept");
             String lowerName = name.toLowerCase();
 
             if(lowerName.endsWith(".mp3") && !lowerName.startsWith("com.") && !lowerName.contains("Legacy")) {
@@ -99,7 +101,7 @@ public class MainActivity extends Activity
 		@Override
 		public void onServiceConnected(ComponentName DadsPlayer, IBinder service)
 		{
-			System.out.println("connected");
+			System.out.println("MainActivity:mCoonection:onServiceConnected");
 			DadsPlayer.LocalBinder binder = (DadsPlayer.LocalBinder) service;
 			mDadsPlayer = binder.getService();
 			mBound = true;
@@ -117,7 +119,7 @@ public class MainActivity extends Activity
         @Override
         public void onServiceDisconnected(ComponentName p1)
         {
-            System.out.println("service disconnected");
+            System.out.println("MainActivity:mConnection:service disconnected");
             mBound = false;
             et.setText("Service Disconnected");
         }
@@ -148,7 +150,7 @@ public class MainActivity extends Activity
         //This is for only a single descriptor
         //mDescriptor is artist or song name
         //mFlag indicates, which was sent
-        System.out.println("FindSongs: start");
+        System.out.println("MainActivity:findSongs");
 
         if(mFlag == ARTIST) {
             //TODO: make this find songs by artist
@@ -163,6 +165,7 @@ public class MainActivity extends Activity
 
     public void findSongs(String mDescriptors[]) {
         //mDescriptors comes in with both artist and song name
+        System.out.println("MainActivity:findSongs:2");
         startPlaying();
     }
     
@@ -173,7 +176,7 @@ public class MainActivity extends Activity
         to be written when file is
         recreated. Called from 
         onSaveInstanceState */
-        
+        System.out.println("MainActivity:getOutput");
         String output = new String();
         char[] buffer = new char[500];
         File file = new File(OUT_FILE_PATH);
@@ -197,7 +200,7 @@ public class MainActivity extends Activity
     }
     
     private void indexMusic() {
-        System.out.println("Indexing");
+        System.out.println("MainActivity:indexMusic");
         et.setText("Finding Songs");
         //TODO: Make this store data somewhere
         //      Come up with conditions to run this
@@ -317,8 +320,11 @@ public class MainActivity extends Activity
 	}
 
     public void nextSong(View v) {
+        System.out.println("MainActivity:nextSong");
         if(mBound) {
             mDadsPlayer.nextSong();
+        } else {
+            Toast.makeText(this,"Player no longer connected restart", Toast.LENGTH_LONG).show();
         }
     }
 	
@@ -411,13 +417,14 @@ public class MainActivity extends Activity
 	}
 	
     public void pause(View v) {
+        System.out.println("MainActivity:pause");
         mDadsPlayer.pause();
     }
     
     public void play(View v) {
-
+        System.out.println("MainActivity:Play");
         if(mHandler == null) {
-            mHandler = new Handler() {
+            mHandler = new Handler() { //Sets up handler to adjust ui when the player wants
                 @Override
                 public void handleMessage(Message msg) {
                     switch(msg.what) {
@@ -429,13 +436,13 @@ public class MainActivity extends Activity
                                 et.setText(songName);
                                 mIsPaused = false;
                             }
-                        break;
+                            break;
                         
-                        case SONG_NAME:
+                        case SONG_NAME: //Called to change the name displayed for the song
                             Bundle mBundle = msg.getData();
                             songName = mBundle.getString("name");
                             et.setText(songName);
-                        break;
+                            break;
                     }
                 }
             };
@@ -454,28 +461,29 @@ public class MainActivity extends Activity
     public void playAll(View v) {
         //Grabs all music and plays in a random order
         System.out.println("MainActivity: playAll");
-        final Playlist all = new Playlist(this); //Creates playlist object to get all songs
+        
+        final Playlist allSongs = new Playlist(this); //Creates playlist object to get all songs
 
         Handler playAllHandler = new Handler() {
             public void handleMessage(Message msg) {
                 switch(msg.what) {
-                    case PLAY_ALL_RANDOM:
+                    case PLAY_ALL_RANDOM: //Called by loaderFinished in playlist class
                         System.out.println("Mainactivity:playAllHandler:playAllRandom");
-                        ArrayList<Song> mSongs = all.getSongs();
-                        Collections.shuffle(mSongs);
+                        ArrayList<Song> mSongs = allSongs.getSongs();
+                        Collections.shuffle(mSongs);  //Randomizes song order
                         mDadsPlayer.setMSongs(mSongs);
-                        play(null);
+                        play(null); //calls play function and sends null to satisfy the view that isn't used
                         break;
                 }
             }
         };
 
-        all.setHandler(playAllHandler);
-        all.setHandlerCode(0); //replace with static
-        getLoaderManager().initLoader(0,null,all); //Starts the cursor loader finding music
+        allSongs.setHandler(playAllHandler);
+        allSongs.setHandlerCode(0); //replace 0 with static variable
+        getLoaderManager().initLoader(0,null,allSongs); //Starts the cursor loader finding music
     }
     
-    public void playlist(View v) {
+    public void playlist(View v) { //name of class consider renaming
         System.out.println("MainActivity: playlist");
         Log.e("Dadsradio","Building intent");
         Intent mIntent = new Intent(this,PlaylistEditor.class);
@@ -488,13 +496,14 @@ public class MainActivity extends Activity
     }
     
     public void prevSong(View v) {
+        System.out.println("MainActivity:prevSong");
         mDadsPlayer.prevSong();
     }
 	
 	public void startBinding() {
 		//This should be called when starting 
 		//to bind the service for general use
-		
+		System.out.println("MainActivity:StartBinding");
 		Intent mIntent = new Intent(this,com.captncript.dadsRadio.DadsPlayer.class);
 
 		try {
@@ -505,13 +514,14 @@ public class MainActivity extends Activity
 	}
 	
 	public void startPlaying() {
-		System.out.println("Start Playing");
+        //play() MUST have been called first
+		System.out.println("MainActivity:Start Playing");
 		
-		new Thread(new Runnable() {
+		new Thread(new Runnable() { //Creates new thread to host the player
 				@Override
 				public void run() {
 					try{
-						String foo = mDadsPlayer.dadPlay();
+						String foo = mDadsPlayer.dadPlay(); //foo receives error messages
 						if(foo != null) {
 							System.out.println("Errors with prep: " + foo);
 						}
@@ -523,6 +533,7 @@ public class MainActivity extends Activity
 	}
 	
 	public void songDisplay() {
+        System.out.println("MainActivity:songDisplay");
 		final Dialog dialog = new Dialog(this);
 		final ArrayList<String> mSongs = new ArrayList<String>();
         final ArrayList<Song> mSongss = new ArrayList<Song>();
@@ -590,6 +601,7 @@ public class MainActivity extends Activity
 	}
     
     public void test(View v) {
+        System.out.println("MainActivity:Test");
         //This responds to test button
         //and should be removed in production
         

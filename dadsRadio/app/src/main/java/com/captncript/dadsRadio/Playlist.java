@@ -26,6 +26,10 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     private int pCode; //This will be used in combination with the handler
     
     public void addSong(Song song) {
+        //song is the Song variable to be added to the pSongs ArrayList
+        //pCount is updated by adding 1
+        System.out.println("Playlist:addSong");
+        
         pSongs.add(song);
         pCount++;
     }
@@ -43,10 +47,14 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     }
     
     public ArrayList<Song> getSongs() {
+        System.out.println("Playlist:getSongs");
         return this.pSongs;
     }
     
     public Playlist(Context context) {
+        //Constructor
+        //Initilizes pCount
+        //Initilizes pApplicationContext with calling activities Context
         pCount = 0;
         this.pApplicationContext = context;
     }
@@ -68,8 +76,8 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         data.moveToFirst(); // Moves to first row in the table
         for(int i=0;i<data.getCount();i++) {
             song = new Song();
-            if(data.getInt(data.getColumnIndex(MediaStore.Audio.AudioColumns.IS_MUSIC)) > 0) {
-                song.setFile(new File(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA))));
+            if(data.getInt(data.getColumnIndex(MediaStore.Audio.AudioColumns.IS_MUSIC)) > 0) { //Checks to make sure the row is music not a ringtone, etc.
+                song.setFile(new File(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA)))); //gets the file path used to play the song
                 if(song != null) {
                     addSong(song);
                 }
@@ -84,18 +92,23 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        //Loader doesn't change with this application
+        //This will probably remain empty
+        //May be useful when searching
     }
 
     public Playlist(String name, Context context) {
+        //Constructor
         this.pName = name;
         this.pApplicationContext = context;
         pCount = 0;
-        
-        System.out.println("Playlist Made");
     }
     
     public void removeSong(int position) {
+        //Position is the index in the array pSongs
+        //Removes a Song from pSongs ArrayList
+        //Checks to make sure a song exists before an attemot is made
+        //decreases pCount by 1 if Song is removed
         if(pCount >= 1) {
             pSongs.remove(position);
             
@@ -113,7 +126,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
             Writes file with pName as file name
             Appends to masterList all list names
             
-            TODO: make a database thats connected to a cursor?
+            TODO: make a database that's connected to a cursor?
             SQLiteOpenHelper
         */
     }
@@ -124,24 +137,12 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         
     }
     
-    public ArrayList<String> getAllSongs(boolean random) {
-        ArrayList<String> songs = new ArrayList<String>();
-        
-        
-        if(random) {
-            Long seed = System.nanoTime();
-            Collections.shuffle(songs,new Random(seed));
-        }
-        
-        return songs;
-    }
-    
     public void setHandler(Handler hand) {
         this.pHandler = hand;
     }
     
     public void setHandlerCode(int code) {
-        //Set the code for the "what" variable in the message to be returned
+        //Set the code for the "what" variable in the Message to be returned
         this.pCode = code;
     }
 }

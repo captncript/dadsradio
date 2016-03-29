@@ -19,7 +19,7 @@ public class PlaylistEditor extends Activity {
     protected void onStart()
     {
         super.onStart();
-        Log.d("Playlist","start");
+        System.out.println("playlistEditor:onStart");
         setContentView(R.layout.playlist);
         
         pTV = (TextView)findViewById(R.id.playlistName);

@@ -1,6 +1,11 @@
 package com.captncript.dadsRadio;
 import java.io.File;
 
+/* 
+  This class is an application wide variable type
+  used to store and manipulate songs
+*/
+
 public class Song {
     private File file;
     private String name;
@@ -28,4 +33,5 @@ public class Song {
     public File getFile()
     {
         return file;
-    }}
+    }
+}
