@@ -61,6 +61,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        System.out.println("Playlist:onCreateLoader");
         Uri mUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = null;
         String selection = null;
@@ -72,6 +73,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        System.out.println("Playlist:onLoadFinished");
         Song song;
         data.moveToFirst(); // Moves to first row in the table
         for(int i=0;i<data.getCount();i++) {
@@ -109,6 +111,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         //Removes a Song from pSongs ArrayList
         //Checks to make sure a song exists before an attemot is made
         //decreases pCount by 1 if Song is removed
+        System.out.println("Playlist:removeSong");
         if(pCount >= 1) {
             pSongs.remove(position);
             
@@ -132,6 +135,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     }
     
     private void newPlaylist() {
+        System.out.println("Playlist:newPlaylist");
         PlaylistDatabase playlistDB = new PlaylistDatabase(pApplicationContext,pName);
         SQLiteDatabase db = playlistDB.getWritableDatabase();
         
