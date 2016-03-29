@@ -53,7 +53,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	public void setMSongs(File mSongs[]) {
-		//TODO: see if this can be removed
+		//TODO: deprecated remove in next round of function clearing
         for(File f : mSongs) {
 			this.mSongs.add(f);
 		}
@@ -62,6 +62,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     public void setMSongs(ArrayList<Song> mSongs) {
         //takes an arraylist of type Song
         //Uses the file to play the song
+        //TODO: rename to addSongs?
+        System.out.println("dadsplayer:setmsongs");
         for(Song s : mSongs) {
             this.mSongs.add(s.getFile());
         }
@@ -91,7 +93,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	@Override
 	public void onPrepared(MediaPlayer mp)
 	{
-        System.out.println("onPrepared");
+        System.out.println("dadsplayer:onPrepared");
         
 		pIsPrepared = true; //TODO: is this used?
 		
@@ -114,7 +116,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	@Override
 	public boolean onError(MediaPlayer p1, int p2, int p3)
 	{
-		aSyncError = "onError: error caught by listener";
+		System.out.println("error with a mediaPlayer object");
+        aSyncError = "onError: error caught by listener";
 		
         return false;
 	}
