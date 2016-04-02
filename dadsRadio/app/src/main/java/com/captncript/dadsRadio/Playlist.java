@@ -25,6 +25,8 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     private Handler pHandler; //Should be set with setHandler
     private int pCode; //This will be used in combination with the handler
     
+    private Cursor cursor; //This will be used to return a cursor when requested
+    
     public void addSong(Song song) {
         //song is the Song variable to be added to the pSongs ArrayList
         //pCount is updated by adding 1
@@ -64,7 +66,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         System.out.println("Playlist:onCreateLoader");
         Uri mUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = null;
-        String selection = null;
+        String selection = "is_music = 1"; //This has the query only return music instead of all audii files
         String[] selectionArgs = null;
         String sort = null;  //TODO: see if randomization can be moved to here
         
@@ -74,16 +76,18 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         System.out.println("Playlist:onLoadFinished");
+        this.cursor = data;
+        
         Song song;
         data.moveToFirst(); // Moves to first row in the table
         for(int i=0;i<data.getCount();i++) {
             song = new Song();
-            if(data.getInt(data.getColumnIndex(MediaStore.Audio.AudioColumns.IS_MUSIC)) > 0) { //Checks to make sure the row is music not a ringtone, etc.
+           // if(data.getInt(data.getColumnIndex(MediaStore.Audio.AudioColumns.IS_MUSIC)) > 0) { //Checks to make sure the row is music not a ringtone, etc.
                 song.setFile(new File(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA)))); //gets the file path used to play the song
                 if(song != null) {
                     addSong(song);
                 }
-            }
+           // }
             data.moveToNext();
         }
         if(pHandler != null) { //Runs if given a handler
@@ -135,6 +139,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     }
     
     private void newPlaylist() {
+        //TODO: implement this
         System.out.println("Playlist:newPlaylist");
         PlaylistDatabase playlistDB = new PlaylistDatabase(pApplicationContext,pName);
         SQLiteDatabase db = playlistDB.getWritableDatabase();
@@ -148,5 +153,9 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     public void setHandlerCode(int code) {
         //Set the code for the "what" variable in the Message to be returned
         this.pCode = code;
+    }
+    
+    public Cursor getCursor() {
+        return this.cursor;
     }
 }

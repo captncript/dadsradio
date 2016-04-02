@@ -12,7 +12,7 @@ import java.util.*;
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
 MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	// TODO: this needs some serious documentation
-    
+    // TODO: shift this to run on Playlists instead of arrayList
 	private final IBinder mIBinder = new LocalBinder();
 	
 	MediaPlayer mp1 = null;

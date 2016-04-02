@@ -101,7 +101,7 @@ public class MainActivity extends Activity
 		@Override
 		public void onServiceConnected(ComponentName DadsPlayer, IBinder service)
 		{
-			System.out.println("MainActivity:mCoonection:onServiceConnected");
+			System.out.println("MainActivity:mConnection:onServiceConnected");
 			DadsPlayer.LocalBinder binder = (DadsPlayer.LocalBinder) service;
 			mDadsPlayer = binder.getService();
 			mBound = true;
@@ -479,7 +479,7 @@ public class MainActivity extends Activity
         };
 
         allSongs.setHandler(playAllHandler);
-        allSongs.setHandlerCode(0); //replace 0 with static variable
+        allSongs.setHandlerCode(PLAY_ALL_RANDOM);
         getLoaderManager().initLoader(0,null,allSongs); //Starts the cursor loader finding music
     }
     
