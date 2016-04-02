@@ -1,12 +1,17 @@
 package com.captncript.dadsRadio;
 
-import android.app.*;
-import android.content.*;
-import android.media.*;
-import android.os.*;
-import android.widget.*;
-import java.io.*;
-import java.util.*;
+import android.app.Service;
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.os.Binder;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.widget.TextView;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
@@ -19,7 +24,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	MediaPlayer mp2 = null;
 	TextView tv = null;
 	
-	ArrayList<File> mSongs = new ArrayList<File>();
+	ArrayList<File> mSongs = new ArrayList<File>(); //to be replaced
 	
 	private boolean pIsComplete = false;
 	private boolean pIsM1Paused = false;
@@ -28,6 +33,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	private String aSyncError = null;
 	
+    //Handler codes
 	private static final int PAUSE = 0;
     public static final int SONG_NAME = 1;
     
@@ -37,6 +43,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	private boolean isM2Playing = false;
 	
 	private Handler pHandler = null;
+    
+    private Playlist currentPlaylist;
 	
 	public boolean getPIsPrepared() {
 		//This is for testing can
@@ -62,7 +70,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     public void setMSongs(ArrayList<Song> mSongs) {
         //takes an arraylist of type Song
         //Uses the file to play the song
-        //TODO: rename to addSongs?
+        //TODO: remove this with addition of playlist support
         System.out.println("dadsplayer:setmsongs");
         for(Song s : mSongs) {
             this.mSongs.add(s.getFile());
@@ -156,10 +164,10 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			isM2Playing = true;
 		}
 		
-		try{
+		try {
 		    msg = Message.obtain(pHandler, PAUSE);
 		    msg.sendToTarget();
-		}catch(Exception e) {
+		} catch(Exception e) {
 			System.out.println(e);
 		}
 	}
@@ -179,7 +187,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     }
     
     public void songChange() {
-        // TODO: switch to using strings/uris directly remove File variables
+        // TODO: switch to managing through a playlist
         System.out.println("DadsPlayer:songChange");
         if(isM1Playing) {
             System.out.println("starting second sound");
@@ -188,7 +196,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             try {
                 mp2.reset();
                 if(songPlaying < mSongs.size() && songPlaying >= 0) {
-                    mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
+                    mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString())); //Switch to playlist 
                 } else {
                     cleanUp();
                     pIsComplete = true;
@@ -210,7 +218,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             try {
                 if(!pIsComplete) {
                     Bundle bundle = new Bundle();
-                    bundle.putString("name",mSongs.get(songPlaying).getName());
+                    bundle.putString("name",mSongs.get(songPlaying).getName()); //Switch to playlist
 
                     Message msg = Message.obtain(pHandler,SONG_NAME); //Displays the songs name
                     msg.setData(bundle);
@@ -233,8 +241,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             try {
                 mp1.reset();
 
-                if(songPlaying < mSongs.size() && songPlaying >= 0) {
-                    mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString()));
+                if(songPlaying < mSongs.size() && songPlaying >= 0) { //Switch to playlist
+                    mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString())); //Switch to playlist
                 } else {
                     cleanUp();
                     pIsComplete = true;
@@ -257,7 +265,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             try {
                 if(!pIsComplete) {
                     Bundle bundle = new Bundle();
-                    bundle.putString("name",mSongs.get(songPlaying).getName());
+                    bundle.putString("name",mSongs.get(songPlaying).getName()); //Switch to playlist
 
                     Message msg = Message.obtain(pHandler, SONG_NAME);
                     msg.setData(bundle);
@@ -303,10 +311,10 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
 
 		try
-		{
-			mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(0).toString()));
+		{ // TODO: fix formatting
+			mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(0).toString())); //Switch to playlist
 			Bundle bundle = new Bundle();
-            bundle.putString("name",mSongs.get(0).getName());
+            bundle.putString("name",mSongs.get(0).getName()); //Switch to playlist
             
             Message msg = Message.obtain(pHandler,SONG_NAME);
             msg.setData(bundle);
@@ -352,7 +360,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         pIsM1Paused = false;
         pIsM2Paused = false;
         songPlaying = 0;
-        mSongs.clear();
+        mSongs.clear(); //Switch to playlist
 		System.out.println("DadsPlayer: clean");
 		
 		try {

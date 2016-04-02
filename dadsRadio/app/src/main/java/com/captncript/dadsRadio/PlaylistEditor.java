@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.view.Menu;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import java.util.ArrayList;
-import android.database.DatabaseUtils;
 
 public class PlaylistEditor extends Activity {
     public final static int ALL_SONGS = 0;
@@ -30,14 +28,8 @@ public class PlaylistEditor extends Activity {
             super.handleMessage(msg);
             switch(msg.what) {
                 case ALL_SONGS:
-                    Cursor mCursor = pPlaylist.getCursor();
-                    DatabaseUtils.dumpCursor(mCursor,System.out);
-                    String[] from = {"_display_name"};
-                    int[] to = {android.R.id.text1};
-                    SimpleCursorAdapter sca = new SimpleCursorAdapter(context,android.R.layout.simple_list_item_1,mCursor,from,to);
-                    ListView lv = (ListView)findViewById(R.id.allSongs);
-                    lv.setAdapter(sca);
-                    sca.notifyDataSetChanged();
+                    loadAllSongs();
+                    break;
             }
         }
         
@@ -59,7 +51,7 @@ public class PlaylistEditor extends Activity {
         pPlaylist.setHandlerCode(ALL_SONGS);
         pPlaylist.setHandler(pHandler);
         getLoaderManager().initLoader(0,null,pPlaylist);
-       // playlistName = receivedIntent.getStringExtra("playlistName");
+        //playlistName = receivedIntent.getStringExtra("playlistName");
         
         //pTV.setText(playlistName);
     }
@@ -77,10 +69,17 @@ public class PlaylistEditor extends Activity {
         //This will populate the left layout
         //allSongs with all songs except those in
         //the playlist
+        Cursor mCursor = pPlaylist.getCursor();
+        String[] from = {"_display_name"};
+        int[] to = {android.R.id.text1}; //assigns int to internal view
+        SimpleCursorAdapter sca = new SimpleCursorAdapter(context,android.R.layout.simple_list_item_1,mCursor,from,to);
+        ListView lv = (ListView)findViewById(R.id.allSongs);
+
+        lv.setAdapter(sca); //Assigns adapter holding data to the listview
+        sca.notifyDataSetChanged(); //Updates graphics
     }
     
     private void loadPlaylist() {
-        //Populate a playlist to check against allSongs
-        //Fill in right panel
+        //Fill in right panel with current playlist
     }
 }

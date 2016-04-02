@@ -13,10 +13,23 @@ import android.os.Message;
 import android.provider.MediaStore;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
 
 public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
+    /*
+        Holds a name for the Playlist
+        Holds arrayList of song variables.
+        Allows adding and removing songs.
+        Allows returning a song from a given position
+        Activates a handler when loader is finished if given
+        Manages a count of all songs in the list.
+        
+        TODO: Manage playlist database interaction(adding, removing, indexing)
+              Manage isActive
+              Keep track of active song(Possibly);
+              Might need to make parcelable
+    */
+    
+    
     private String pName;
     private int pCount;
     private ArrayList<Song> pSongs = new ArrayList<Song>();
@@ -26,6 +39,8 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     private int pCode; //This will be used in combination with the handler
     
     private Cursor cursor; //This will be used to return a cursor when requested
+    
+    private boolean isActive; //Used to see if this playlist is being used by dadsPlayer
     
     public void addSong(Song song) {
         //song is the Song variable to be added to the pSongs ArrayList
@@ -65,10 +80,10 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         System.out.println("Playlist:onCreateLoader");
         Uri mUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = null;
+        String[] projection = null;  // TODO: update this to the pieces I need
         String selection = "is_music = 1"; //This has the query only return music instead of all audii files
         String[] selectionArgs = null;
-        String sort = null;  //TODO: see if randomization can be moved to here
+        String sort = null;
         
         return new CursorLoader(pApplicationContext,mUri,projection,selection,selectionArgs,sort);
     }
@@ -81,13 +96,12 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         Song song;
         data.moveToFirst(); // Moves to first row in the table
         for(int i=0;i<data.getCount();i++) {
-            song = new Song();
-           // if(data.getInt(data.getColumnIndex(MediaStore.Audio.AudioColumns.IS_MUSIC)) > 0) { //Checks to make sure the row is music not a ringtone, etc.
-                song.setFile(new File(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA)))); //gets the file path used to play the song
-                if(song != null) {
-                    addSong(song);
-                }
-           // }
+            song = new Song();  // TODO:write a different way
+
+            song.setFile(new File(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA)))); //gets the file path used to play the song
+            if(song != null) {
+                addSong(song);  // TODO: This could be an army of function calls change to bulk process
+            }
             data.moveToNext();
         }
         if(pHandler != null) { //Runs if given a handler

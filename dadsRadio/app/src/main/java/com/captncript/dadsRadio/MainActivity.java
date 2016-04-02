@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,7 +30,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import android.widget.Toast;
 
 /*
 	TODO:
@@ -37,10 +37,10 @@ import android.widget.Toast;
     20:00
 
    -Change buttons to symbols
-   -Clean out displaying .mp3 in name
    -Add playlist support
-   -Add caching
+   -Add testing control to improve performance
    -Add voice control
+   -Make sure only one player can be active at a time
 */
 
 public class MainActivity extends Activity
@@ -422,6 +422,7 @@ public class MainActivity extends Activity
     }
     
     public void play(View v) {
+        // TODO: if songs already playing do nothing
         System.out.println("MainActivity:Play");
         if(mHandler == null) {
             mHandler = new Handler() { //Sets up handler to adjust ui when the player wants
