@@ -13,6 +13,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     /*
@@ -98,12 +99,15 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         for(int i=0;i<data.getCount();i++) {
             song = new Song();  // TODO:write a different way
 
-            song.setFile(new File(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA)))); //gets the file path used to play the song
+            song.setSource(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA))); //gets the file path used to play the song
+            song.setName(data.getString(data.getColumnIndex("_display_name")));
             if(song != null) {
+                //Make list here
                 addSong(song);  // TODO: This could be an army of function calls change to bulk process
             }
             data.moveToNext();
         }
+        //addSongs here
         if(pHandler != null) { //Runs if given a handler
             Message msg = Message.obtain(pHandler,pCode);
             msg.sendToTarget();
@@ -122,6 +126,11 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         this.pName = name;
         this.pApplicationContext = context;
         pCount = 0;
+    }
+    
+    public void randomize() {
+        //Call this to have the songs in the playlist shuffled
+        Collections.shuffle(pSongs);
     }
     
     public void removeSong(int position) {

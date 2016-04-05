@@ -11,7 +11,6 @@ Playlist:addSong
 Playlist:addSong
 Mainactivity:playAllHandler:playAllRandom
 Playlist:getSongs
-dadsplayer:setmsongs
 MainActivity:Play
 MainActivity:Start Playing
 DadsPlayer:dadPlay
@@ -21,6 +20,7 @@ MainActivity:nextSong
 DadsPlayer:Next song
 DadsPlayer:songChange
 starting second sound
+Stopping player 1
 dadsplayer:onPrepared
 mp equals mp2
 MainActivity:nextSong
@@ -33,12 +33,41 @@ MainActivity:nextSong
 DadsPlayer:Next song
 DadsPlayer:songChange
 starting second sound
+Stopping player 1
 dadsplayer:onPrepared
 mp equals mp2
 MainActivity:nextSong
 DadsPlayer:Next song
 DadsPlayer:songChange
 Starting first sound
+dadsplayer:onPrepared
+mp equals mp1
+MainActivity:pause
+DadsPlayer:pause
+Pausing mp1
+MainActivity:pause
+DadsPlayer:pause
+MainActivity:pause
+DadsPlayer:pause
+Pausing mp1
+MainActivity:pause
+DadsPlayer:pause
+MainActivity:pause
+DadsPlayer:pause
+Pausing mp1
+MainActivity:Play
+DadsPlayer:pause
+MainActivity:pause
+DadsPlayer:pause
+Pausing mp1
+MainActivity:pause
+DadsPlayer:pause
+MainActivity:pause
+DadsPlayer:pause
+Pausing mp1
+MainActivity:Play
+MainActivity:Start Playing
+DadsPlayer:dadPlay
 dadsplayer:onPrepared
 mp equals mp1
 MainActivity:nextSong

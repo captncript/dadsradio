@@ -33,11 +33,10 @@ import java.util.Collections;
 
 /*
 	TODO:
-    04-02-16
-    14:00
+    04-05-16
+    16:00
 
    -Change buttons to symbols
-   -Add playlist support
    -Add testing control to improve performance
    -Add voice control
    -Make sure only one player can be active at a time
@@ -198,126 +197,6 @@ public class MainActivity extends Activity
         
         return output;
     }
-    
-    private void indexMusic() {
-        System.out.println("MainActivity:indexMusic");
-        et.setText("Finding Songs");
-        //TODO: Make this store data somewhere
-        //      Come up with conditions to run this
-        final Handler mIndexHandler = new Handler() {
-            public void handleMessage(Message msg) {
-                Bundle mBundle = null;
-                ArrayList<String> mIndex = null;
-
-                try {
-                    switch(msg.what) {
-                        case 0:
-                            mBundle = msg.getData();
-                            mIndex = mBundle.getStringArrayList("Files");
-                            pDirs.clear();
-                            for(String s: mIndex) {
-                                //System.out.println(s);
-                                pDirs.add(s);
-                            }
-                            et.setText("index complete");
-
-                            songDisplay();      
-                        break;
-                        
-                        case 1:
-                            //For Updates
-                            System.out.println((String)msg.obj);
-                        break;
-                    }
-                }catch(Exception e){
-                    System.out.println(e);
-                }
-            }
-        };
-        System.out.println("Starting new thread");
-
-        new Thread(new Runnable() {
-                ArrayList<String> mIndexes = new ArrayList<String>();
-                ArrayList<String> mIndexDirs = new ArrayList<String>();
-                ArrayList<String> mDirs = new ArrayList<String>();
-
-                Bundle mBundle = new Bundle();
-
-                int mCounter = 0;
-                int mDirCount = 0;
-
-                String lastDir = new String();
-
-                boolean once = true;
-
-                @Override
-                public void run() {
-                    File file = new File("/storage");
-                    Message m = Message.obtain(mIndexHandler,1,"Building");
-                    m.sendToTarget();
-
-                    try {
-                        //This try needs to be removed
-                        fileCrawler(file);
-                    } catch(Exception e) {
-                        System.out.println(e);
-                    }
-                    System.out.println("crawled");
-                    try {
-                        mBundle.putStringArrayList("Files",mIndexDirs);
-                        Message mMessage = Message.obtain(mIndexHandler, 0);
-                        mMessage.arg1 = mCounter;
-                        mMessage.setData(mBundle);
-                        mMessage.sendToTarget();
-                    }catch(Exception e) {
-                        System.out.println(e);
-                    }
-                    try {
-                        Thread.currentThread().join();
-                    }
-                    catch (InterruptedException e) {
-                        System.out.println(e);
-                    }
-                }
-
-                public void fileCrawler(File mFile) {
-                    /*
-                     Recursive function drills down
-                     through all files looking for music 
-                     files.
-                     */
-                    File mFiles[] = null;
-                    File indexFiles[] = null;
-
-                    if(mFile != null) {
-                        mFiles = mFile.listFiles();
-                        indexFiles = mFile.listFiles(musicFilter);
-                    }
-
-                    if (mFiles != null) {
-                        for(File f: mFiles) {
-                            if(f.isDirectory()) {
-                                mDirs.add(f.toString());
-                                mDirCount++;
-                            }
-                            mIndexes.add(f.toString());
-                            mCounter++;
-                            fileCrawler(f);
-                        }
-                    }
-                    if(indexFiles != null) {
-                        for(File f : indexFiles) {
-                            String mPathToFile = f.toString().substring(0,f.toString().lastIndexOf(File.separatorChar));
-                            if(!mPathToFile.equals(lastDir) && !mPathToFile.toLowerCase().contains("legacy")) {
-                                mIndexDirs.add(mPathToFile);
-                                lastDir = mPathToFile;
-                            }
-                        }
-
-                    }
-                }
-            }).start();
-	}
 
     public void nextSong(View v) {
         System.out.println("MainActivity:nextSong");
@@ -395,8 +274,7 @@ public class MainActivity extends Activity
 	
 	private void outputSetup() {
 		//DAD NOTE: This just sets up an area outside the app to view output
-		try
-		{
+		try {
 			File mFile = new File(OUT_FILE_PATH);
 			
 			ps = new PrintStream(mFile);
@@ -407,9 +285,7 @@ public class MainActivity extends Activity
 			System.setOut(ps);
 			
 			et.setText("Successful setup");
-		}
-		catch (FileNotFoundException e)
-		{
+		} catch (FileNotFoundException e) {
 			Log.v("Output setup", e.toString());
 			et.setText("File not found");
 		}
@@ -470,9 +346,17 @@ public class MainActivity extends Activity
                 switch(msg.what) {
                     case PLAY_ALL_RANDOM: //Called by loaderFinished in playlist class
                         System.out.println("Mainactivity:playAllHandler:playAllRandom");
+                        
+                        //New style
+                        allSongs.randomize(); //changes order of songs in the playlist
+                        mDadsPlayer.setPlaylist(allSongs);
+                        
+                        //Old style
                         ArrayList<Song> mSongs = allSongs.getSongs();
                         Collections.shuffle(mSongs);  //Randomizes song order
-                        mDadsPlayer.setMSongs(mSongs);
+                        //mDadsPlayer.setMSongs(mSongs);
+                        
+                        //starts player
                         play(null); //calls play function and sends null to satisfy the view that isn't used
                         break;
                 }
@@ -559,7 +443,7 @@ public class MainActivity extends Activity
 				for(String t : new File(s).list(musicFilter)) {
 					mSongs.add(t);
                     mSong.setName(s + File.separator + t);
-                    mSong.setFile(new File(mSong.getName()));
+                    //mSong.setFile(new File(mSong.getName()));
                     mSongss.add(mSong);
                     mSong = new Song();
 				}
@@ -585,7 +469,7 @@ public class MainActivity extends Activity
 		
 		mBOK.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-                mDadsPlayer.setMSongs(mSelectedSongs);
+                //mDadsPlayer.setMSongs(mSelectedSongs);
                 mSelectedSongs.clear();
 				dialog.dismiss();
             }

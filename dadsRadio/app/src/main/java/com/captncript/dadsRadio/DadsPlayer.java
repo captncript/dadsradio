@@ -18,13 +18,12 @@ public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListene
 MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	// TODO: this needs some serious documentation
     // TODO: shift this to run on Playlists instead of arrayList
+    //Should be playlist compatible
 	private final IBinder mIBinder = new LocalBinder();
 	
 	MediaPlayer mp1 = null;
 	MediaPlayer mp2 = null;
 	TextView tv = null;
-	
-	ArrayList<File> mSongs = new ArrayList<File>(); //to be replaced
 	
 	private boolean pIsComplete = false;
 	private boolean pIsM1Paused = false;
@@ -59,23 +58,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	public String getASyncError() {
 		return aSyncError;
 	}
-	
-	public void setMSongs(File mSongs[]) {
-		//TODO: deprecated remove in next round of function clearing
-        for(File f : mSongs) {
-			this.mSongs.add(f);
-		}
-	}
-    
-    public void setMSongs(ArrayList<Song> mSongs) {
-        //takes an arraylist of type Song
-        //Uses the file to play the song
-        //TODO: remove this with addition of playlist support
-        System.out.println("dadsplayer:setmsongs");
-        for(Song s : mSongs) {
-            this.mSongs.add(s.getFile());
-        }
-    }
 	
 	public class LocalBinder extends Binder {
 		DadsPlayer getService() {
@@ -195,8 +177,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
             try {
                 mp2.reset();
-                if(songPlaying < mSongs.size() && songPlaying >= 0) {
-                    mp2.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString())); //Switch to playlist 
+                if(songPlaying < currentPlaylist.getCount() && songPlaying >= 0) {
+                    mp2.setDataSource(currentPlaylist.getSong(songPlaying).getSource()); //Switch to playlist 
                 } else {
                     cleanUp();
                     pIsComplete = true;
@@ -217,8 +199,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
             try {
                 if(!pIsComplete) {
+                    //Done in multiple places make it a function
                     Bundle bundle = new Bundle();
-                    bundle.putString("name",mSongs.get(songPlaying).getName()); //Switch to playlist
+                    bundle.putString("name",currentPlaylist.getSong(songPlaying).getName()); //Switch to playlist
 
                     Message msg = Message.obtain(pHandler,SONG_NAME); //Displays the songs name
                     msg.setData(bundle);
@@ -233,6 +216,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                 System.out.println("mp2 prepare: " + e.toString());
             }
             if(!pIsComplete) {
+                System.out.println("Stopping player 1");
                 mp1.stop();
             }
         } else if(isM2Playing) {
@@ -241,8 +225,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             try {
                 mp1.reset();
 
-                if(songPlaying < mSongs.size() && songPlaying >= 0) { //Switch to playlist
-                    mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(songPlaying).toString())); //Switch to playlist
+                if(songPlaying < currentPlaylist.getCount() && songPlaying >= 0) { //Switch to playlist
+                    mp1.setDataSource(currentPlaylist.getSong(songPlaying).getSource()); //Switch to playlist
                 } else {
                     cleanUp();
                     pIsComplete = true;
@@ -265,7 +249,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             try {
                 if(!pIsComplete) {
                     Bundle bundle = new Bundle();
-                    bundle.putString("name",mSongs.get(songPlaying).getName()); //Switch to playlist
+                    bundle.putString("name",currentPlaylist.getSong(songPlaying).getName()); //Switch to playlist
 
                     Message msg = Message.obtain(pHandler, SONG_NAME);
                     msg.setData(bundle);
@@ -312,9 +296,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
 		try
 		{ // TODO: fix formatting
-			mp1.setDataSource(this, android.net.Uri.parse(mSongs.get(0).toString())); //Switch to playlist
-			Bundle bundle = new Bundle();
-            bundle.putString("name",mSongs.get(0).getName()); //Switch to playlist
+			mp1.setDataSource(currentPlaylist.getSong(0).getSource()); //Switch to playlist
+            Bundle bundle = new Bundle();
+            bundle.putString("name",currentPlaylist.getSong(0).getName()); //Switch to playlist
             
             Message msg = Message.obtain(pHandler,SONG_NAME);
             msg.setData(bundle);
@@ -345,6 +329,10 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		this.pHandler = mHandler;
 	}
 	
+    public void setPlaylist(Playlist playlist) {
+        this.currentPlaylist = playlist;
+    }
+    
 	public void cleanUp() {
 		System.out.println("DadsPlayer: cleanUp");
 		if(mp1 != null) {
@@ -360,7 +348,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         pIsM1Paused = false;
         pIsM2Paused = false;
         songPlaying = 0;
-        mSongs.clear(); //Switch to playlist
 		System.out.println("DadsPlayer: clean");
 		
 		try {
