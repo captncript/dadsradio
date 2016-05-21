@@ -10,12 +10,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.MediaStore;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
+public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelable {
     /*
         Holds a name for the Playlist
         Holds arrayList of song variables.
@@ -23,12 +24,18 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         Allows returning a song from a given position
         Activates a handler when loader is finished if given
         Manages a count of all songs in the list.
+        An object of type Playlist will functiin as parcelable
         
         TODO: Manage playlist database interaction(adding, removing, indexing)
-              Manage isActive
-              Keep track of active song(Possibly);
               Might need to make parcelable
     */
+    
+    //For parcel flattening and building *****************
+    private final static String NAME = "Name"; 
+    private final static String CODE = "HandlerCode";
+    private final static String SONGCOUNT = "SongCount";
+    public final static String SONGS = "Songs";
+    //****************************************************
     
     
     private String pName;
@@ -41,8 +48,6 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     
     private Cursor cursor; //This will be used to return a cursor when requested
     
-    private boolean isActive; //Used to see if this playlist is being used by dadsPlayer
-    
     public void addSong(Song song) {
         //song is the Song variable to be added to the pSongs ArrayList
         //pCount is updated by adding 1
@@ -50,6 +55,16 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         
         pSongs.add(song);
         pCount++;
+    }
+    
+    public void addSong(ArrayList<Song> mSongs) {
+        //Allows arraylists of songs to be added to a playlist at once
+        System.out.println("Playlist:addSong");
+        
+        for(Song s : mSongs) {
+            pSongs.add(s);
+            pCount++;
+        }
     }
     
     public int getCount() {
@@ -95,9 +110,9 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         this.cursor = data;
         
         Song song;
-        data.moveToFirst(); // Moves to first row in the table
+        data.moveToFirst(); //Must be called before iterating over data or the cursor is pointing at nothing
         for(int i=0;i<data.getCount();i++) {
-            song = new Song();  // TODO:write a different way
+            song = new Song();  // TODO:write a different way maybe a clear function?
 
             song.setSource(data.getString(data.getColumnIndex(MediaStore.Audio.AudioColumns.DATA))); //gets the file path used to play the song
             song.setName(data.getString(data.getColumnIndex("_display_name")));
@@ -126,6 +141,20 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
         this.pName = name;
         this.pApplicationContext = context;
         pCount = 0;
+    }
+    
+    public Playlist(Parcel parcel) {
+        //Constructor
+        Bundle imported = parcel.readBundle();
+        //pSongs = new ArrayList<Song>();
+        
+        imported.setClassLoader(Playlist.class.getClassLoader());
+        
+        pName = imported.getString(NAME);
+        pCode = imported.getInt(CODE);
+        pCount = imported.getInt(SONGCOUNT);
+        pSongs = imported.getParcelableArrayList(SONGS);
+        //pSongs = parcel.readArrayList(Song.class.getClassLoader());
     }
     
     public void randomize() {
@@ -181,4 +210,34 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor> {
     public Cursor getCursor() {
         return this.cursor;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        //Doesn't store context handler or handler code
+        //These should be sent from the activity using a playlist
+        Bundle toSend = new Bundle();
+        
+        toSend.putString(NAME,pName);
+        toSend.putInt(CODE, pCode);
+        toSend.putInt(SONGCOUNT,pCount);
+        toSend.putParcelableArrayList(SONGS, pSongs);
+        
+        parcel.writeBundle(toSend);
+    }
+
+    public static final Parcelable.Creator<Playlist> CREATOR
+    = new Parcelable.Creator<Playlist>() {
+        public Playlist createFromParcel(Parcel in) {
+            return new Playlist(in);
+        }
+
+        public Playlist[] newArray(int size) {
+            return new Playlist[size];
+        }
+    };
 }

@@ -33,8 +33,8 @@ import java.util.Collections;
 
 /*
 	TODO:
-    04-05-16
-    16:00
+    05-20-16
+    20:00
 
    -Change buttons to symbols
    -Add testing control to improve performance
@@ -79,7 +79,8 @@ public class MainActivity extends Activity
     
 	private Handler mHandler = null;
 	private ArrayList<String> pDirs = new ArrayList<String>();
-	
+	private Playlist pPlaylist;
+    
     FilenameFilter musicFilter = new FilenameFilter() {
         @Override
         public boolean accept(File p1, String name) {
@@ -266,9 +267,18 @@ public class MainActivity extends Activity
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println("MainActivity:onStart");
+        
+        Intent intent = getIntent();
+        
+        pPlaylist = intent.getParcelableExtra("playlist");
+    }
+    
 	@Override
-	protected void onStop()
-	{
+	protected void onStop() {
 		super.onStop();
 	}
 	
@@ -340,24 +350,18 @@ public class MainActivity extends Activity
         System.out.println("MainActivity: playAll");
         
         final Playlist allSongs = new Playlist(this); //Creates playlist object to get all songs
-
+        //TODO: unoutcomment play it was done for testing
         Handler playAllHandler = new Handler() {
             public void handleMessage(Message msg) {
                 switch(msg.what) {
                     case PLAY_ALL_RANDOM: //Called by loaderFinished in playlist class
                         System.out.println("Mainactivity:playAllHandler:playAllRandom");
-                        
-                        //New style
+                      
                         allSongs.randomize(); //changes order of songs in the playlist
                         mDadsPlayer.setPlaylist(allSongs);
-                        
-                        //Old style
-                        ArrayList<Song> mSongs = allSongs.getSongs();
-                        Collections.shuffle(mSongs);  //Randomizes song order
-                        //mDadsPlayer.setMSongs(mSongs);
-                        
+                       
                         //starts player
-                        play(null); //calls play function and sends null to satisfy the view that isn't used
+                        play(null); //sends null to satisfy the view that isn't used
                         break;
                 }
             }
@@ -370,7 +374,7 @@ public class MainActivity extends Activity
     
     public void playlist(View v) { //name of class consider renaming
         System.out.println("MainActivity: playlist");
-        Log.e("Dadsradio","Building intent");
+        
         Intent mIntent = new Intent(this,PlaylistEditor.class);
         
         try {
@@ -492,4 +496,19 @@ public class MainActivity extends Activity
         
     }
     
+    public void test2(Playlist mPlaylist) {
+        //Test run by hitting playAll
+        System.out.println("MainActivity: test2");
+        Intent mIntent = new Intent(this,PlaylistEditor.class);
+        
+        mIntent.putExtra("playlist", mPlaylist);
+        mIntent.putExtra("activePlaylist", true);
+        mIntent.putExtra("playlistName", "Test Playlist");
+        
+        try {
+            startActivity(mIntent);
+        } catch(Exception e) {
+            System.out.println(e);
+        }
+    }
 }
