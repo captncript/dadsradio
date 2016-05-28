@@ -220,30 +220,31 @@ public class MainActivity extends Activity
 		
 		et =  (EditText)findViewById(R.id.display);
 		pPauseButton = (Button)findViewById(R.id.pause);
-		/*
-		 DAD NOTE:
-		 Runs a setup for outputting
-		 data during development.
-		 This works specifically for me
-		 you will probably want to design
-		 your own.
-		 */
-		outputSetup();
 		
-		if(pSV == null) {
-			pSV = new SteadyVariables();
-			
-			fm.beginTransaction().add(pSV, "ps").commit();
-			pSV.setPConnection(mConnection);
-		} else {
-			mDadsPlayer = pSV.getPDadsPlayer();
-			mHandler = pSV.getPHandler();
-			mConnection = pSV.getPConnection();
+        if(pSV == null) {
+            pSV = new SteadyVariables();
+
+            fm.beginTransaction().add(pSV, "ps").commit();
+            pSV.setPConnection(mConnection);
+        } else {
+            mDadsPlayer = pSV.getPDadsPlayer();
+            mHandler = pSV.getPHandler();
+            mConnection = pSV.getPConnection();
             mIsPaused = savedInstanceState.getBoolean("paused");
             System.out.print(pSV.getOutput());
 		}
-		
+        
+        /*
+		 DAD NOTE:
+		 Runs a setup for outputting
+		 data during development.
+		 
+		 */
+		System.out.println("Rerun");
 		if(mDadsPlayer == null) {
+            outputSetup();
+            System.out.println("onCreate");
+            
 			startBinding();
 		} else {
 			mBound = true;
@@ -256,6 +257,7 @@ public class MainActivity extends Activity
 
         startBinding();
         outputSetup();
+        System.out.println("onRestart");
     }
     
     @Override
@@ -338,6 +340,9 @@ public class MainActivity extends Activity
         mDadsPlayer.setHandler(mHandler);
         
         if(mIsPaused == false) {
+            if(pPlaylist != null) {
+                mDadsPlayer.setPlaylist(pPlaylist);
+            }
             startPlaying();
         } else {
             mIsPaused = false;
@@ -376,6 +381,13 @@ public class MainActivity extends Activity
         System.out.println("MainActivity: playlist");
         
         Intent mIntent = new Intent(this,PlaylistEditor.class);
+        mIntent.putExtra("playlist",pPlaylist);
+        
+        if(pPlaylist != null && pPlaylist.getCount() > 0) {
+            mIntent.putExtra("activePlaylist", true);
+            mIntent.putExtra("playlistName", pPlaylist.getName());
+        }
+        
         
         try {
             startActivity(mIntent);
@@ -410,7 +422,7 @@ public class MainActivity extends Activity
 				@Override
 				public void run() {
 					try{
-						String foo = mDadsPlayer.dadPlay(); //foo receives error messages
+						String foo = mDadsPlayer.dadPlay(); //foo receives error messages TODO: change the name
 						if(foo != null) {
 							System.out.println("Errors with prep: " + foo);
 						}
@@ -494,6 +506,7 @@ public class MainActivity extends Activity
         //This responds to test button
         //and should be removed in production
         
+        pPlaylist.debugSongsOutput();
     }
     
     public void test2(Playlist mPlaylist) {

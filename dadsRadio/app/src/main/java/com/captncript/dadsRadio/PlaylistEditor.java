@@ -108,10 +108,19 @@ public class PlaylistEditor extends Activity {
         allSongsList.setOnItemClickListener(new OnItemClickListener() {
             
             public void onItemClick(AdapterView<?> av, View view,int position, long id) {
+                // TODO: save Song to pPlaylist
                 System.out.println("PlaylistEditor:allSongsItemClick");
+                Song toAdd = new Song();
+                
                 //av.removeViewInLayout(view);
                 mCursor.moveToPosition(position);
-                playlistNames.add(mCursor.getString(mCursor.getColumnIndex("_display_name")));
+                
+                toAdd.setName(mCursor.getString(mCursor.getColumnIndex("_display_name")));
+                toAdd.setSource(mCursor.getString(mCursor.getColumnIndex("_data")));
+                
+                pPlaylist.addSong(toAdd);
+                
+                playlistNames.add(toAdd.getName());
             }
         });
     }
@@ -120,9 +129,13 @@ public class PlaylistEditor extends Activity {
         System.out.println("PlaylistEditor:loadPlayist");
         //Fill in right panel with current playlist
         
-        ArrayList<Song> allSongs = pPlaylist.getSongs();
+        ArrayList<Song> allSongs = new ArrayList<Song>();
         
-        ArrayList<String> displayNames = new ArrayList<String>();
+        if(pPlaylist.getCount() > 0) {
+            allSongs = pPlaylist.getSongs();
+        }
+        
+        final ArrayList<String> displayNames = new ArrayList<String>();
         playlistNames = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,displayNames);
         
         
@@ -132,6 +145,17 @@ public class PlaylistEditor extends Activity {
     
         pLV2.setAdapter(playlistNames);
         playlistNames.notifyDataSetChanged();
+        
+        pLV2.setOnItemClickListener(new OnItemClickListener() {
+                public void onItemClick(AdapterView<?> av, View view,int position, long id) {
+                    System.out.println("PlaylistEditor:loadPlaylistItemClick");
+                    
+                    displayNames.remove(position);
+                    playlistNames.notifyDataSetChanged();
+                    
+                    pPlaylist.removeSong(position);
+                }
+        });
     }
     
     public void save(View view) {
@@ -149,7 +173,7 @@ public class PlaylistEditor extends Activity {
         System.out.println("PlaylistEditor:goToMain");
         
         Intent intent = new Intent(this,MainActivity.class);
-        intent.putExtra("Playlist", pPlaylist);
+        intent.putExtra("playlist", pPlaylist);
 
         startActivity(intent);
     }

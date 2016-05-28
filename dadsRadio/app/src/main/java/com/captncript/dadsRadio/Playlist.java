@@ -240,4 +240,15 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
             return new Playlist[size];
         }
     };
+    
+    public void debugSongsOutput() {
+        // TODO: change name
+        System.out.println("Playlist:debugSongsOutput");
+        
+        System.out.println("Song count: " + pCount);
+        
+        for(Song s : pSongs) {
+            System.out.println(s.getName());
+        }
+    }
 }
