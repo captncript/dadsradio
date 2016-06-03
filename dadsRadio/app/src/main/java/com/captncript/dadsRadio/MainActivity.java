@@ -33,7 +33,7 @@ import java.util.Collections;
 
 /*
 	TODO:
-    05-20-16
+    06-03-16
     20:00
 
    -Change buttons to symbols
@@ -378,6 +378,8 @@ public class MainActivity extends Activity
     }
     
     public void playlist(View v) { //name of class consider renaming
+        // TODO: loses dadsPlayer object
+        // Starts a second player on return
         System.out.println("MainActivity: playlist");
         
         Intent mIntent = new Intent(this,PlaylistEditor.class);

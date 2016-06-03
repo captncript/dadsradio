@@ -3,22 +3,4 @@ MainActivity:StartBinding
 MainActivity:onStart
 MainActivity:mConnection:onServiceConnected
 bound: true
-MainActivity:Play
-MainActivity:Start Playing
-DadsPlayer:dadPlay
-dadsplayer:onPrepared
-mp equals mp1
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-starting second sound
-Stopping player 1
-dadsplayer:onPrepared
-mp equals mp2
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-Starting first sound
-DadsPlayer: cleanUp
-DadsPlayer: clean
 MainActivity:getOutput

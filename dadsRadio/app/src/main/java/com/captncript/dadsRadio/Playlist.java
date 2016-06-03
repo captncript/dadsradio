@@ -67,6 +67,13 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
         }
     }
     
+    public void clear() {
+        //Leaves the playlist at a blank slate
+        pCount = 0;
+        pSongs.clear();
+        pName = "";
+    }
+    
     public int getCount() {
         return this.pCount;
     }

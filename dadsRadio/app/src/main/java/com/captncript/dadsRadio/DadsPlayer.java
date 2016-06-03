@@ -44,6 +44,10 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     
     private Playlist currentPlaylist;
 	
+    public void clearPlaylist() {
+        currentPlaylist.clear();
+    }
+    
 	public boolean getPIsPrepared() {
 		//This is for testing can
 		//probably be removed when finished
