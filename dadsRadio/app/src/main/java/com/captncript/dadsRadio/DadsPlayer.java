@@ -333,15 +333,10 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
     public void setPlaylist(Playlist playlist) {
-        Toast t = new Toast(this);
-        t.makeText(this,"Set",Toast.LENGTH_LONG).show();
-        
-        if(isPlaying()) {
-            t.makeText(this,"Stopped",Toast.LENGTH_LONG).show();
-            
+        if(isPlaying()) { //Clears media players from old playlist
             mp1.stop();
             mp2.stop();
-            songPlaying = 0;
+            songPlaying = 0; //Resets counter for the new playlist
         }
         this.currentPlaylist = playlist;
     }

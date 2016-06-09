@@ -45,18 +45,9 @@ public class SteadyVariables extends Fragment {
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       
-        Log.e("DadsRadio", "created");
         
 		// retain this fragment
         setRetainInstance(true);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        
-        Log.e("DadsRadio", "frag destroyed");
     }
     
 }

@@ -34,7 +34,7 @@ import java.util.Collections;
 /*
 	TODO:
     06-09-16
-    17:00
+    19:00
 
    -Add testing control to improve performance
    -Add voice control
@@ -111,11 +111,9 @@ public class MainActivity extends Activity {
                 System.out.println("MainActivity:mConnection:onServiceConnected");
 			}
             if(binder == null) {
-                Log.d(TAG, "New binder");
                 binder = (DadsPlayer.LocalBinder) service;
 			}
             mDadsPlayer = binder.getService();
-            Log.d(TAG, "Player made");
 			mBound = true;
 			mDadsPlayer.setHandler(mHandler);
 			
