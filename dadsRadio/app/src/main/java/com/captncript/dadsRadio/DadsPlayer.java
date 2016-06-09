@@ -12,12 +12,13 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import android.widget.Toast;
 
 
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
 MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	// TODO: this needs some serious documentation
-
+    // Possibly change name of class to PlayerManager
 	private final IBinder mIBinder = new LocalBinder();
 	
 	MediaPlayer mp1 = null;
@@ -62,6 +63,15 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		return aSyncError;
 	}
 	
+    public boolean isPlaying() {
+        if(mp1 != null && mp2 != null) {
+            if(mp1.isPlaying() || mp2.isPlaying()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
 	public class LocalBinder extends Binder {
 		DadsPlayer getService() {
 			//This is part of a messaging with the
@@ -71,8 +81,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	@Override
-	public IBinder onBind(Intent mIntent)
-	{
+	public IBinder onBind(Intent mIntent) {
 		//This returns an iBinder to 
 		//communicate with the main activity
 		
@@ -84,19 +93,18 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
 	@Override
-	public void onPrepared(MediaPlayer mp)
-	{
-        System.out.println("dadsplayer:onPrepared");
+	public void onPrepared(MediaPlayer mp) {
+        if(MainActivity.debug) {
+            System.out.println("dadsplayer:onPrepared");
+        }
         
 		pIsPrepared = true; //TODO: is this used?
 		
 		//Calls method/function mp not service mp
 		if(mp != null && mp.equals(mp1)) {
-			System.out.println("mp equals mp1");
 			isM1Playing = true;
 			isM2Playing = false;
 		} else if(mp != null && mp.equals(mp2)) {
-			System.out.println("mp equals mp2");
 			isM1Playing = false;
 			isM2Playing = true;
 		} else {
@@ -107,35 +115,38 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 
 	@Override
-	public boolean onError(MediaPlayer p1, int p2, int p3)
-	{
-		System.out.println("error with a mediaPlayer object");
+	public boolean onError(MediaPlayer p1, int p2, int p3) {
+		if(MainActivity.debug) {
+            System.out.println("error with a mediaPlayer object");
+        }
+        
         aSyncError = "onError: error caught by listener";
 		
         return false;
 	}
 
 	@Override
-	public void onCompletion(MediaPlayer mp)
-	{
+	public void onCompletion(MediaPlayer mp) {
 		//This will play the next song in the succession
-		System.out.println("onCompletion");
-		
+		if(MainActivity.debug) {
+            System.out.println("onCompletion");
+		}
+        
 		nextSong();
 	}
 	
 	public void pause() {
-        System.out.println("DadsPlayer:pause");
+        if(MainActivity.debug) {
+            System.out.println("DadsPlayer:pause");
+        }
         
 		Message msg = null;
 		
 		if(isM1Playing) {
-			System.out.println("Pausing mp1");
 			pIsM1Paused = true;
 			isM1Playing = false;
 			mp1.pause();
 		} else if(isM2Playing) {
-			System.out.println("Pausing mp2");
 			mp2.pause();
 			pIsM2Paused = true;
 			isM2Playing = false;
@@ -158,24 +169,31 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 		
     public void nextSong() {
-        System.out.println("DadsPlayer:Next song");
+        if(MainActivity.debug) {
+            System.out.println("DadsPlayer:Next song");
+        }
+            
         songPlaying++;
         
         songChange();
     }
     
     public void prevSong() {
-        System.out.println("DadsPlayer:Prev song");
+        if(MainActivity.debug) {
+            System.out.println("DadsPlayer:Prev song");
+        }
+        
         songPlaying--;
         
         songChange();
     }
     
     public void songChange() {
-        // TODO: switch to managing through a playlist
-        System.out.println("DadsPlayer:songChange");
+        if(MainActivity.debug) {
+            System.out.println("DadsPlayer:songChange");
+        }
+        
         if(isM1Playing) {
-            System.out.println("starting second sound");
             //Repeated make it a function?
 
             try {
@@ -186,17 +204,13 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     cleanUp();
                     pIsComplete = true;
                 }
-            }
-            catch (SecurityException e) {
+            } catch (SecurityException e) {
                 System.out.println("mp2 set security: " + e.toString());
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 System.out.println("mp2 set illegalArgument: " + e.toString());
-            }
-            catch (IllegalStateException e) {
+            } catch (IllegalStateException e) {
                 System.out.println("mp2 set IllegalState: " + e.toString());
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 System.out.println("mp2 set io: " + e.toString());
             }
 
@@ -204,27 +218,22 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                 if(!pIsComplete) {
                     //Done in multiple places make it a function
                     Bundle bundle = new Bundle();
-                    bundle.putString("name",currentPlaylist.getSong(songPlaying).getName()); //Switch to playlist
+                    bundle.putString("name",currentPlaylist.getSong(songPlaying).getName());
 
                     Message msg = Message.obtain(pHandler,SONG_NAME); //Displays the songs name
                     msg.setData(bundle);
                     msg.sendToTarget();
                     mp2.prepare();
                 }
-            }
-            catch (IllegalStateException e) {
+            } catch (IllegalStateException e) {
                 System.out.println("mp2 prepare: " + e.toString());
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 System.out.println("mp2 prepare: " + e.toString());
             }
             if(!pIsComplete) {
-                System.out.println("Stopping player 1");
                 mp1.stop();
             }
         } else if(isM2Playing) {
-            System.out.println("Starting first sound");
-
             try {
                 mp1.reset();
 
@@ -234,20 +243,15 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     cleanUp();
                     pIsComplete = true;
                 }
-            }
-            catch (SecurityException e) {
+            } catch (SecurityException e) {
+                System.out.println("mp1 set: " + e.toString());
+            } catch (IllegalArgumentException e) {
+                System.out.println("mp1 set: " + e.toString());
+            } catch (IllegalStateException e) {
+                System.out.println("mp1 set: " + e.toString());
+            } catch (IOException e) {
                 System.out.println("mp1 set: " + e.toString());
             }
-            catch (IllegalArgumentException e) {
-                System.out.println("mp1 set: " + e.toString());
-            }
-            catch (IllegalStateException e) {
-                System.out.println("mp1 set: " + e.toString());
-            }
-            catch (IOException e) {
-                System.out.println("mp1 set: " + e.toString());
-            }
-            
             
             try {
                 if(!pIsComplete) {
@@ -259,11 +263,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     msg.sendToTarget();
                     mp1.prepare();
                 }
-            }
-            catch (IllegalStateException e) {
+            } catch (IllegalStateException e) {
                 System.out.println("mp1 prepare: " + e.toString());
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 System.out.println("mp1 prepare: " + e.toString());
             }
             if(!pIsComplete) {
@@ -274,9 +276,16 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     }
     
 	public String dadPlay() {
-        //TODO: clean up formatting
-        System.out.println("DadsPlayer:dadPlay");
-		String mPrepped = null;
+        if(MainActivity.debug) {
+            System.out.println("DadsPlayer:dadPlay");
+		}
+        
+        if(isPlaying()) {
+            mp1.stop();
+            mp2.stop();
+        }
+        
+        String mPrepped = null;
 		
         pIsComplete = false;
         
@@ -297,8 +306,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		mp2.setOnCompletionListener(this);
 
 
-		try
-		{ // TODO: fix formatting
+		try {
 			mp1.setDataSource(currentPlaylist.getSong(0).getSource()); //Switch to playlist
             Bundle bundle = new Bundle();
             bundle.putString("name",currentPlaylist.getSong(0).getName()); //Switch to playlist
@@ -307,21 +315,13 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             msg.setData(bundle);
             msg.sendToTarget();
             mp1.prepare();
-		}
-		catch (SecurityException e)
-		{
+		} catch (SecurityException e) {
 			mPrepped = "Security: " + e.toString();
-		}
-		catch (IllegalArgumentException e)
-		{
+		} catch (IllegalArgumentException e) {
 			mPrepped = "IllegalArgument: " + e.toString();
-		}
-		catch (IllegalStateException e)
-		{
+		} catch (IllegalStateException e) {
 			mPrepped = "IllegalState: " + e.toString();
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			mPrepped = "IO: " + e.toString();
 		}
         
@@ -333,12 +333,25 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 	
     public void setPlaylist(Playlist playlist) {
+        Toast t = new Toast(this);
+        t.makeText(this,"Set",Toast.LENGTH_LONG).show();
+        
+        if(isPlaying()) {
+            t.makeText(this,"Stopped",Toast.LENGTH_LONG).show();
+            
+            mp1.stop();
+            mp2.stop();
+            songPlaying = 0;
+        }
         this.currentPlaylist = playlist;
     }
     
 	public void cleanUp() {
-		System.out.println("DadsPlayer: cleanUp");
-		if(mp1 != null) {
+		if(MainActivity.debug) {
+            System.out.println("DadsPlayer: cleanUp");
+		}
+        
+        if(mp1 != null) {
 			mp1.release();
 			mp1 = null;
 		}

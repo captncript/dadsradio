@@ -3,19 +3,20 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import java.util.ArrayList;
-import android.widget.ArrayAdapter;
-import android.provider.MediaStore;
+import android.os.Binder;
+import android.os.IBinder;
 
 public class PlaylistEditor extends Activity {
     public final static int ALL_SONGS = 0;
@@ -30,6 +31,7 @@ public class PlaylistEditor extends Activity {
     ArrayAdapter<String> playlistNames;
     
     private boolean isTemporary;
+    private DadsPlayer.LocalBinder mainsBinder;
     
     private Handler pHandler = new Handler() {
         @Override
@@ -55,7 +57,11 @@ public class PlaylistEditor extends Activity {
     protected void onStart() {
         //This runs when called activity is started by another activity
         super.onStart();
-        System.out.println("playlistEditor:onStart");
+        
+        if(MainActivity.debug) {
+            System.out.println("playlistEditor:onStart");
+        }
+        
         setContentView(R.layout.playlist);
         
         pTV = (TextView)findViewById(R.id.playlistName);
@@ -63,8 +69,10 @@ public class PlaylistEditor extends Activity {
         pLV2 = (ListView)findViewById(R.id.playlistSongs);
         
         Intent receivedIntent = getIntent();
-        boolean hasActivePlaylist = receivedIntent.getBooleanExtra("activePlaylist",false); //Defaults to false, but checks to see if there is an active playlist being sent
-        System.out.println("Loading manager");
+        Bundle passedVals = receivedIntent.getBundleExtra("all");
+        
+        boolean hasActivePlaylist = passedVals.getBoolean("activePlaylist",false); //Defaults to false, but checks to see if there is an active playlist being sent
+        mainsBinder = (DadsPlayer.LocalBinder)passedVals.getBinder("binder");
         
         playlistOfAllSongs.setHandlerCode(ALL_SONGS);
         playlistOfAllSongs.setHandler(pHandler);
@@ -72,8 +80,8 @@ public class PlaylistEditor extends Activity {
         getLoaderManager().initLoader(0,null,playlistOfAllSongs);
         
         if(hasActivePlaylist) {
-            playlistName = receivedIntent.getStringExtra("playlistName");
-            pPlaylist = receivedIntent.getParcelableExtra("playlist");
+            playlistName = passedVals.getString("playlistName");
+            pPlaylist = passedVals.getParcelable("playlist");
             originalPlaylist = pPlaylist;
             isTemporary = false;
             loadPlaylist();
@@ -93,7 +101,10 @@ public class PlaylistEditor extends Activity {
     }
     
     private void loadAllSongs() {
-        System.out.println("PlaylistEditor: loadAllSongs");
+        if(MainActivity.debug) {
+            System.out.println("PlaylistEditor: loadAllSongs");
+        }
+        
         //This will populate the left layout
         //allSongs with all songs on the system
         final Cursor mCursor = playlistOfAllSongs.getCursor();
@@ -108,11 +119,12 @@ public class PlaylistEditor extends Activity {
         allSongsList.setOnItemClickListener(new OnItemClickListener() {
             
             public void onItemClick(AdapterView<?> av, View view,int position, long id) {
-                // TODO: save Song to pPlaylist
-                System.out.println("PlaylistEditor:allSongsItemClick");
+                if(MainActivity.debug) {
+                    System.out.println("PlaylistEditor:allSongsItemClick");
+                }
+                
                 Song toAdd = new Song();
                 
-                //av.removeViewInLayout(view);
                 mCursor.moveToPosition(position);
                 
                 toAdd.setName(mCursor.getString(mCursor.getColumnIndex("_display_name")));
@@ -126,7 +138,9 @@ public class PlaylistEditor extends Activity {
     }
     
     private void loadPlaylist() {
-        System.out.println("PlaylistEditor:loadPlayist");
+        if(MainActivity.debug) {
+            System.out.println("PlaylistEditor:loadPlayist");
+        }
         //Fill in right panel with current playlist
         
         ArrayList<Song> allSongs = new ArrayList<Song>();
@@ -148,7 +162,9 @@ public class PlaylistEditor extends Activity {
         
         pLV2.setOnItemClickListener(new OnItemClickListener() {
                 public void onItemClick(AdapterView<?> av, View view,int position, long id) {
-                    System.out.println("PlaylistEditor:loadPlaylistItemClick");
+                    if(MainActivity.debug) {
+                        System.out.println("PlaylistEditor:loadPlaylistItemClick");
+                    }
                     
                     displayNames.remove(position);
                     playlistNames.notifyDataSetChanged();
@@ -159,9 +175,9 @@ public class PlaylistEditor extends Activity {
     }
     
     public void save(View view) {
-        //id/saveButton
-        //TODO: implement this method
-        System.out.println("PlaylistEditor:save");
+        if(MainActivity.debug) {
+            System.out.println("PlaylistEditor:save");
+        }
         
         pPlaylist.write();
         
@@ -170,17 +186,26 @@ public class PlaylistEditor extends Activity {
     
     public void goToMain() {
         //This starts the mainActivity
-        System.out.println("PlaylistEditor:goToMain");
+        if(MainActivity.debug) {
+            System.out.println("PlaylistEditor:goToMain");
+        }
         
+        Bundle toPass = new Bundle();
         Intent intent = new Intent(this,MainActivity.class);
-        intent.putExtra("playlist", pPlaylist);
+        
+        toPass.putParcelable("playlist",pPlaylist);
+        toPass.putBinder("binder",mainsBinder);
+        
+        intent.putExtra("all", toPass);
 
         startActivity(intent);
     }
     
     public void cancel(View view) {
-        System.out.println("PlaylistEditor:cancel");
-        
+        if(MainActivity.debug) {
+            System.out.println("PlaylistEditor:cancel");
+        }
+        // TODO: playlist change is remaining
         pPlaylist = originalPlaylist;
         goToMain();
     }

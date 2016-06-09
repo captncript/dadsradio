@@ -36,19 +36,22 @@ import java.util.Collections;
     06-03-16
     20:00
 
-   -Change buttons to symbols
    -Add testing control to improve performance
    -Add voice control
    -Make sure only one player can be active at a time
+   -Test against sound interruptions
+   -Correct active playlist management(nextSong crashes if playlist is changed)
 */
 
-public class MainActivity extends Activity
-{
-	private SteadyVariables pSV;
-	
-	//DAD NOTE: This is the output stream for development uses
+public class MainActivity extends Activity {
+	public static final boolean debug = true;
+    
+    private SteadyVariables pSV;
+
 	public PrintStream ps;
 	
+    public static final String TAG = "DadsRadio";
+    
 	public static final int ARTIST = 1;
 	public static final int SONG = 2;
 	public static final int REQUEST_MEDIA = 3;
@@ -66,6 +69,7 @@ public class MainActivity extends Activity
 	private Button pPauseButton = null;
 	
 	DadsPlayer mDadsPlayer;
+    DadsPlayer.LocalBinder binder;
 	Button mButton = null;
 	
 	//DAD NOTE: This variable being true means that
@@ -75,7 +79,7 @@ public class MainActivity extends Activity
 	boolean mFragExists = false;
 	boolean mReOpened = false;
     
-    String songName = new String();
+    String songName = new String(); // Remove?
     
 	private Handler mHandler = null;
 	private ArrayList<String> pDirs = new ArrayList<String>();
@@ -85,7 +89,10 @@ public class MainActivity extends Activity
         @Override
         public boolean accept(File p1, String name) {
             //Add other sound files
-            System.out.println("MainActivity:musicFilter:accept");
+            if(debug) {
+                System.out.println("MainActivity:musicFilter:accept");
+            }
+            
             String lowerName = name.toLowerCase();
 
             if(lowerName.endsWith(".mp3") && !lowerName.startsWith("com.") && !lowerName.contains("Legacy")) {
@@ -99,11 +106,16 @@ public class MainActivity extends Activity
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
 		@Override
-		public void onServiceConnected(ComponentName DadsPlayer, IBinder service)
-		{
-			System.out.println("MainActivity:mConnection:onServiceConnected");
-			DadsPlayer.LocalBinder binder = (DadsPlayer.LocalBinder) service;
-			mDadsPlayer = binder.getService();
+		public void onServiceConnected(ComponentName DadsPlayer, IBinder service) {
+			if(debug) {
+                System.out.println("MainActivity:mConnection:onServiceConnected");
+			}
+            if(binder == null) {
+                Log.d(TAG, "New binder");
+                binder = (DadsPlayer.LocalBinder) service;
+			}
+            mDadsPlayer = binder.getService();
+            Log.d(TAG, "Player made");
 			mBound = true;
 			mDadsPlayer.setHandler(mHandler);
 			
@@ -113,45 +125,41 @@ public class MainActivity extends Activity
 			if(mErr != null) {
 				System.out.println("Async errors: " + mErr);
 			}
-			System.out.println("bound: " + mBound);
 		}
         
         @Override
-        public void onServiceDisconnected(ComponentName p1)
-        {
-            System.out.println("MainActivity:mConnection:service disconnected");
+        public void onServiceDisconnected(ComponentName p1) {
+            if(debug) {
+                System.out.println("MainActivity:mConnection:service disconnected");
+            }
             mBound = false;
-            et.setText("Service Disconnected");
         }
-
 	};
 
     public void cleanUp(View v) {
         //This doesn't display and
         //locks down the program
         //Might remove
-        System.out.println("Main:cleanUp");
-        try {
-            et.setText("Cleaning up");
-            System.out.println(et.getText());
-        } catch(Exception e) {
-            System.out.println(e);
+        // TODO: I dont believe this is running check before merge
+        if(debug) {
+            System.out.println("Main:cleanUp");
         }
+       
         //This releases all remaining
         //media players
         mDadsPlayer.cleanUp();
 
         System.out.println("Main:Clean");
-
-        et.setText("Clean");
     }
         
     public void findSongs(String mDescriptor, int mFlag) {
         //This is for only a single descriptor
         //mDescriptor is artist or song name
         //mFlag indicates, which was sent
-        System.out.println("MainActivity:findSongs");
-
+        if(debug) {
+            System.out.println("MainActivity:findSongs");
+        }
+            
         if(mFlag == ARTIST) {
             //TODO: make this find songs by artist
             //name
@@ -165,7 +173,9 @@ public class MainActivity extends Activity
 
     public void findSongs(String mDescriptors[]) {
         //mDescriptors comes in with both artist and song name
-        System.out.println("MainActivity:findSongs:2");
+        if(debug) {
+            System.out.println("MainActivity:findSongs:2");
+        }
         startPlaying();
     }
     
@@ -176,7 +186,10 @@ public class MainActivity extends Activity
         to be written when file is
         recreated. Called from 
         onSaveInstanceState */
-        System.out.println("MainActivity:getOutput");
+        if(debug) {
+            System.out.println("MainActivity:getOutput");
+        }
+        
         String output = new String();
         char[] buffer = new char[500];
         File file = new File(OUT_FILE_PATH);
@@ -200,7 +213,10 @@ public class MainActivity extends Activity
     }
 
     public void nextSong(View v) {
-        System.out.println("MainActivity:nextSong");
+        if(debug) {
+            System.out.println("MainActivity:nextSong");
+        }
+        
         if(mBound) {
             mDadsPlayer.nextSong();
         } else {
@@ -209,8 +225,7 @@ public class MainActivity extends Activity
     }
 	
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.main);
@@ -221,9 +236,11 @@ public class MainActivity extends Activity
 		et =  (EditText)findViewById(R.id.display);
 		pPauseButton = (Button)findViewById(R.id.pause);
 		
-        if(pSV == null) {
+        if(pSV == null) { //Only functions on state change does not work across activities
             pSV = new SteadyVariables();
-
+            if(pSV.getOutput() != null) {
+                Log.e("DadsRadio", "has output");
+            }
             fm.beginTransaction().add(pSV, "ps").commit();
             pSV.setPConnection(mConnection);
         } else {
@@ -234,17 +251,12 @@ public class MainActivity extends Activity
             System.out.print(pSV.getOutput());
 		}
         
-        /*
-		 DAD NOTE:
-		 Runs a setup for outputting
-		 data during development.
-		 
-		 */
-		System.out.println("Rerun");
 		if(mDadsPlayer == null) {
             outputSetup();
-            System.out.println("onCreate");
-            
+            if(debug) {
+                System.out.println("onCreate");
+            }
+            Log.e("DadsRadio","Binding");
 			startBinding();
 		} else {
 			mBound = true;
@@ -255,34 +267,41 @@ public class MainActivity extends Activity
     protected void onRestart() {
         super.onRestart();
 
-        startBinding();
         outputSetup();
-        System.out.println("onRestart");
+        if(debug) {
+            System.out.println("onRestart");
+        }
     }
     
     @Override
-    protected void onSaveInstanceState(Bundle outState)
-    {
+    protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("paused", mIsPaused);
         pSV.setOutput(getOutput());
-        
+
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        System.out.println("MainActivity:onStart");
+        if(debug) {
+            System.out.println("MainActivity:onStart");
+        }
         
         Intent intent = getIntent();
+        Bundle passedVals = intent.getBundleExtra("all");
         
-        pPlaylist = intent.getParcelableExtra("playlist");
+        if(intent.getFlags() == 0) {      //Causes this to only run on activity change
+            pPlaylist = passedVals.getParcelable("playlist");
+            binder = (DadsPlayer.LocalBinder)passedVals.getBinder("binder");
+            Log.d("DadsRadio", "Binder set");
+        }
+        
+        if(mConnection == null) {
+            System.out.println("connection null");
+            mConnection = pSV.getPConnection();
+        }
     }
-    
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
 	
 	private void outputSetup() {
 		//DAD NOTE: This just sets up an area outside the app to view output
@@ -305,13 +324,18 @@ public class MainActivity extends Activity
 	}
 	
     public void pause(View v) {
-        System.out.println("MainActivity:pause");
+        if(debug) {
+            System.out.println("MainActivity:pause");
+        }
         mDadsPlayer.pause();
     }
     
     public void play(View v) {
         // TODO: if songs already playing do nothing
-        System.out.println("MainActivity:Play");
+        if(debug) {
+            System.out.println("MainActivity:Play");
+        }
+        
         if(mHandler == null) {
             mHandler = new Handler() { //Sets up handler to adjust ui when the player wants
                 @Override
@@ -352,18 +376,23 @@ public class MainActivity extends Activity
     
     public void playAll(View v) {
         //Grabs all music and plays in a random order
-        System.out.println("MainActivity: playAll");
+        if(debug) {
+            System.out.println("MainActivity: playAll");
+        }
         
         final Playlist allSongs = new Playlist(this); //Creates playlist object to get all songs
-        //TODO: unoutcomment play it was done for testing
+        
         Handler playAllHandler = new Handler() {
             public void handleMessage(Message msg) {
                 switch(msg.what) {
                     case PLAY_ALL_RANDOM: //Called by loaderFinished in playlist class
-                        System.out.println("Mainactivity:playAllHandler:playAllRandom");
-                      
+                        if(debug) {
+                            System.out.println("Mainactivity:playAllHandler:playAllRandom");
+                        }
+                        
                         allSongs.randomize(); //changes order of songs in the playlist
-                        mDadsPlayer.setPlaylist(allSongs);
+                        pPlaylist = allSongs;
+                        mDadsPlayer.setPlaylist(pPlaylist);
                        
                         //starts player
                         play(null); //sends null to satisfy the view that isn't used
@@ -380,16 +409,22 @@ public class MainActivity extends Activity
     public void playlist(View v) { //name of class consider renaming
         // TODO: loses dadsPlayer object
         // Starts a second player on return
-        System.out.println("MainActivity: playlist");
-        
-        Intent mIntent = new Intent(this,PlaylistEditor.class);
-        mIntent.putExtra("playlist",pPlaylist);
-        
-        if(pPlaylist != null && pPlaylist.getCount() > 0) {
-            mIntent.putExtra("activePlaylist", true);
-            mIntent.putExtra("playlistName", pPlaylist.getName());
+        if(debug) {
+            System.out.println("MainActivity: playlist");
         }
         
+        Intent mIntent = new Intent(this,PlaylistEditor.class);
+        Bundle toPass = new Bundle();
+        
+        toPass.putBinder("binder", binder);
+        toPass.putParcelable("playlist",pPlaylist);
+        
+        mIntent.putExtra("all",toPass);
+        
+        if(pPlaylist != null && pPlaylist.getCount() > 0) {
+            toPass.putBoolean("activePlaylist", true);
+            toPass.putString("playlistName", pPlaylist.getName());
+        }
         
         try {
             startActivity(mIntent);
@@ -399,15 +434,20 @@ public class MainActivity extends Activity
     }
     
     public void prevSong(View v) {
-        System.out.println("MainActivity:prevSong");
+        if(debug) {
+            System.out.println("MainActivity:prevSong");
+        }
         mDadsPlayer.prevSong();
     }
 	
 	public void startBinding() {
 		//This should be called when starting 
 		//to bind the service for general use
-		System.out.println("MainActivity:StartBinding");
-		Intent mIntent = new Intent(this,com.captncript.dadsRadio.DadsPlayer.class);
+		if(debug) {
+            System.out.println("MainActivity:StartBinding");
+		}
+        
+        Intent mIntent = new Intent(this,com.captncript.dadsRadio.DadsPlayer.class);
 
 		try {
 			bindService(mIntent,mConnection,Context.BIND_AUTO_CREATE);
@@ -418,8 +458,10 @@ public class MainActivity extends Activity
 	
 	public void startPlaying() {
         //play() MUST have been called first
-		System.out.println("MainActivity:Start Playing");
-		
+		if(debug) {
+            System.out.println("MainActivity:Start Playing");
+		}
+        
 		new Thread(new Runnable() { //Creates new thread to host the player
 				@Override
 				public void run() {
@@ -436,8 +478,11 @@ public class MainActivity extends Activity
 	}
 	
 	public void songDisplay() {
-        System.out.println("MainActivity:songDisplay");
-		final Dialog dialog = new Dialog(this);
+        if(debug) {
+            System.out.println("MainActivity:songDisplay");
+		}
+        
+        final Dialog dialog = new Dialog(this);
 		final ArrayList<String> mSongs = new ArrayList<String>();
         final ArrayList<Song> mSongss = new ArrayList<Song>();
         final ArrayList<Song> mSelectedSongs = new ArrayList<Song>();
@@ -504,7 +549,9 @@ public class MainActivity extends Activity
 	}
     
     public void test(View v) {
-        System.out.println("MainActivity:Test");
+        if(debug) {
+            System.out.println("MainActivity:Test");
+        }
         //This responds to test button
         //and should be removed in production
         
@@ -513,7 +560,10 @@ public class MainActivity extends Activity
     
     public void test2(Playlist mPlaylist) {
         //Test run by hitting playAll
-        System.out.println("MainActivity: test2");
+        if(debug){
+            System.out.println("MainActivity: test2");
+        }
+        
         Intent mIntent = new Intent(this,PlaylistEditor.class);
         
         mIntent.putExtra("playlist", mPlaylist);
