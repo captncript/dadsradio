@@ -5,42 +5,21 @@ MainActivity:mConnection:onServiceConnected
 MainActivity:Play
 MainActivity:Start Playing
 DadsPlayer:dadPlay
-error with a mediaPlayer object
-onCompletion
+dadsplayer:onPrepared
+MainActivity:nextSong
 DadsPlayer:Next song
 DadsPlayer:songChange
-mp2 prepare: java.lang.IllegalStateException
-Errors with prep: IllegalState: java.lang.IllegalStateException
 dadsplayer:onPrepared
-MainActivity:pause
-DadsPlayer:pause
-MainActivity:pause
-DadsPlayer:pause
-MainActivity: playAll
-Playlist:onCreateLoader
-Playlist:onLoadFinished
-Playlist:addSong
-Playlist:addSong
-Playlist:addSong
-Playlist:addSong
-Playlist:addSong
-Mainactivity:playAllHandler:playAllRandom
-MainActivity:Play
-MainActivity:Start Playing
-DadsPlayer:dadPlay
+MainActivity:nextSong
+DadsPlayer:Next song
+DadsPlayer:songChange
 dadsplayer:onPrepared
-MainActivity:pause
-DadsPlayer:pause
-MainActivity:pause
-DadsPlayer:pause
-MainActivity:pause
-DadsPlayer:pause
-MainActivity:Play
-DadsPlayer:pause
-MainActivity:pause
-DadsPlayer:pause
-MainActivity:Play
-MainActivity:Start Playing
-DadsPlayer:dadPlay
+MainActivity:nextSong
+DadsPlayer:Next song
+DadsPlayer:songChange
+dadsplayer:onPrepared
+MainActivity:nextSong
+DadsPlayer:Next song
+DadsPlayer:songChange
 dadsplayer:onPrepared
 MainActivity:getOutput
