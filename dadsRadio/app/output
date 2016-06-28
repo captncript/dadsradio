@@ -1,25 +1,6 @@
 onCreate
 MainActivity:StartBinding
+java.lang.IllegalArgumentException: connection is null
 MainActivity:onStart
-MainActivity:mConnection:onServiceConnected
-MainActivity:Play
-MainActivity:Start Playing
-DadsPlayer:dadPlay
-dadsplayer:onPrepared
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-dadsplayer:onPrepared
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-dadsplayer:onPrepared
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-dadsplayer:onPrepared
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-dadsplayer:onPrepared
+connection null
 MainActivity:getOutput

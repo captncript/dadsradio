@@ -64,7 +64,6 @@ public class MainActivity extends Activity {
     //playAllHandler Case(s)
     public static final int PLAY_ALL_RANDOM = 0;
 	
-	//DAD NOTE: This variable will hold the text box
 	EditText et = null;
 	private Button pPauseButton = null;
 	
@@ -72,8 +71,6 @@ public class MainActivity extends Activity {
     DadsPlayer.LocalBinder binder;
 	Button mButton = null;
 	
-	//DAD NOTE: This variable being true means that
-	//we have a connection to the service(DadsPlayer.java)
 	boolean mBound = false;
 	boolean mIsPaused = false;
 	boolean mFragExists = false;
@@ -133,22 +130,6 @@ public class MainActivity extends Activity {
             mBound = false;
         }
 	};
-
-    public void cleanUp(View v) {
-        //This doesn't display and
-        //locks down the program
-        //Might remove
-        // TODO: I dont believe this is running check before merge
-        if(debug) {
-            System.out.println("Main:cleanUp");
-        }
-       
-        //This releases all remaining
-        //media players
-        mDadsPlayer.cleanUp();
-
-        System.out.println("Main:Clean");
-    }
         
     public void findSongs(String mDescriptor, int mFlag) {
         //This is for only a single descriptor
@@ -178,8 +159,8 @@ public class MainActivity extends Activity {
     }
     
     public String getOutput() {
-        /* May be causing a delay.
-        grabs up to 500 characters 
+        /* 
+        Grabs up to 500 characters 
         from the output file and saves
         to be written when file is
         recreated. Called from 
@@ -292,6 +273,7 @@ public class MainActivity extends Activity {
         if(intent.getFlags() == 0) {      //Causes this to only run on activity change
             pPlaylist = passedVals.getParcelable("playlist");
             binder = (DadsPlayer.LocalBinder)passedVals.getBinder("binder");
+            Toast.makeText(this,"Binder loaded",Toast.LENGTH_LONG).show();
             Log.d("DadsRadio", "Binder set");
         }
         
