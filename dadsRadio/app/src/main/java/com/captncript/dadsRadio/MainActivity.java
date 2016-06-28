@@ -41,6 +41,7 @@ import java.util.Collections;
    -Make sure only one player can be active at a time
    -Test against sound interruptions
    -Correct active playlist management(nextSong crashes if playlist is changed)
+   -Remove System.out.println and replace with Log statements
 */
 
 public class MainActivity extends Activity {
@@ -113,7 +114,7 @@ public class MainActivity extends Activity {
             mDadsPlayer = binder.getService();
 			mBound = true;
 			mDadsPlayer.setHandler(mHandler);
-			
+            
 			pSV.setPDadsPlayer(mDadsPlayer);
 			
 			String mErr = mDadsPlayer.getASyncError();
@@ -132,6 +133,7 @@ public class MainActivity extends Activity {
 	};
         
     public void findSongs(String mDescriptor, int mFlag) {
+        // TODO: this probably belongs in an asyncTask
         //This is for only a single descriptor
         //mDescriptor is artist or song name
         //mFlag indicates, which was sent
@@ -209,6 +211,9 @@ public class MainActivity extends Activity {
 
 		setContentView(R.layout.main);
 		
+        Intent intent = new Intent(this,DadsPlayer.class);
+        startService(intent);
+        
 		FragmentManager fm = getFragmentManager();
 		pSV = (SteadyVariables)fm.findFragmentByTag("ps");
 		
@@ -235,8 +240,6 @@ public class MainActivity extends Activity {
             if(debug) {
                 System.out.println("onCreate");
             }
-            Log.e("DadsRadio","Binding");
-			startBinding();
 		} else {
 			mBound = true;
 		}
@@ -244,6 +247,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onRestart() {
+        // TODO: consider if this is useful
         super.onRestart();
 
         outputSetup();
@@ -254,6 +258,7 @@ public class MainActivity extends Activity {
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        // TODO: why is main tracking if the player is paused?
         outState.putBoolean("paused", mIsPaused);
         pSV.setOutput(getOutput());
 
@@ -272,15 +277,46 @@ public class MainActivity extends Activity {
         
         if(intent.getFlags() == 0) {      //Causes this to only run on activity change
             pPlaylist = passedVals.getParcelable("playlist");
-            binder = (DadsPlayer.LocalBinder)passedVals.getBinder("binder");
-            Toast.makeText(this,"Binder loaded",Toast.LENGTH_LONG).show();
-            Log.d("DadsRadio", "Binder set");
         }
+        
+        mHandler = new Handler() { //Sets up handler to adjust ui when the player wants
+            @Override
+            public void handleMessage(Message msg) {
+                switch(msg.what) {
+                    case PAUSE:
+                        if(mIsPaused == false) {
+                            et.setText("Paused");
+                            mIsPaused = true;
+                        } else {
+                            et.setText(songName);
+                            mIsPaused = false;
+                        }
+                        break;
+
+                    case SONG_NAME: //Called to change the name displayed for the song
+                        Bundle mBundle = msg.getData();
+                        songName = mBundle.getString("name");
+                        et.setText(songName);
+                        break;
+                }
+            }
+        };
+        
+        pSV.setPHandler(mHandler);
+        
+        startBinding();
         
         if(mConnection == null) {
             System.out.println("connection null");
             mConnection = pSV.getPConnection();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        unbindService(mConnection);
+        
+        super.onStop();
     }
 	
 	private void outputSetup() {
@@ -315,33 +351,6 @@ public class MainActivity extends Activity {
         if(debug) {
             System.out.println("MainActivity:Play");
         }
-        
-        if(mHandler == null) {
-            mHandler = new Handler() { //Sets up handler to adjust ui when the player wants
-                @Override
-                public void handleMessage(Message msg) {
-                    switch(msg.what) {
-                        case PAUSE:
-                            if(mIsPaused == false) {
-                                et.setText("Paused");
-                                mIsPaused = true;
-                            } else {
-                                et.setText(songName);
-                                mIsPaused = false;
-                            }
-                            break;
-                        
-                        case SONG_NAME: //Called to change the name displayed for the song
-                            Bundle mBundle = msg.getData();
-                            songName = mBundle.getString("name");
-                            et.setText(songName);
-                            break;
-                    }
-                }
-            };
-        }
-        pSV.setPHandler(mHandler);
-        mDadsPlayer.setHandler(mHandler);
         
         if(mIsPaused == false) {
             if(pPlaylist != null) {
@@ -396,7 +405,6 @@ public class MainActivity extends Activity {
         Intent mIntent = new Intent(this,PlaylistEditor.class);
         Bundle toPass = new Bundle();
         
-        toPass.putBinder("binder", binder);
         toPass.putParcelable("playlist",pPlaylist);
         
         mIntent.putExtra("all",toPass);
@@ -431,6 +439,7 @@ public class MainActivity extends Activity {
 
 		try {
 			bindService(mIntent,mConnection,Context.BIND_AUTO_CREATE);
+            Toast.makeText(this,"Bound",Toast.LENGTH_SHORT).show();
 		} catch(Exception e) {
 			System.out.println(e);
 		}
