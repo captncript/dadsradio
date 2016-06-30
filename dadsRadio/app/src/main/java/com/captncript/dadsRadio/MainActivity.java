@@ -83,24 +83,6 @@ public class MainActivity extends Activity {
 	private ArrayList<String> pDirs = new ArrayList<String>();
 	private Playlist pPlaylist;
     
-    FilenameFilter musicFilter = new FilenameFilter() {
-        @Override
-        public boolean accept(File p1, String name) {
-            //Add other sound files
-            if(debug) {
-                System.out.println("MainActivity:musicFilter:accept");
-            }
-            
-            String lowerName = name.toLowerCase();
-
-            if(lowerName.endsWith(".mp3") && !lowerName.startsWith("com.") && !lowerName.contains("Legacy")) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-	};
-    
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
 		@Override
@@ -465,77 +447,6 @@ public class MainActivity extends Activity {
 				}
 			}).start();
 	}
-	
-	public void songDisplay() {
-        if(debug) {
-            System.out.println("MainActivity:songDisplay");
-		}
-        
-        final Dialog dialog = new Dialog(this);
-		final ArrayList<String> mSongs = new ArrayList<String>();
-        final ArrayList<Song> mSongss = new ArrayList<Song>();
-        final ArrayList<Song> mSelectedSongs = new ArrayList<Song>();
-        Song mSong = new Song();
-        
-		dialog.setContentView(R.layout.songpicker);
-		dialog.setTitle("Song Selection");
-		dialog.getWindow().getAttributes().width = WindowManager.LayoutParams.FILL_PARENT;
-		dialog.getWindow().getAttributes().height = WindowManager.LayoutParams.FILL_PARENT;
-		
-		
-		final ListView lv = (ListView)dialog.findViewById(R.id.Songs);
-		
-		final Button mBOK = (Button)dialog.findViewById(R.id.OK);
-		final Button mCancel = (Button)dialog.findViewById(R.id.Cancel);
-		
-		mSongs.clear();
-        mSongss.clear();
-		if(pDirs != null) {
-			for(String s : pDirs) {
-				for(String t : new File(s).list(musicFilter)) {
-					mSongs.add(t);
-                    mSong.setName(s + File.separator + t);
-                    //mSong.setFile(new File(mSong.getName()));
-                    mSongss.add(mSong);
-                    mSong = new Song();
-				}
-			}
-		}
-		
-		final ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,mSongs);
-		
-		if(lv != null) {
-		    lv.setAdapter(mAdapter);
-		}
-		//Ok can't be picked without making a selection in
-		//the ListView
-		mBOK.setEnabled(false);
-
-		lv.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView < ? > adapter, View view, int position, long l) {
-                mSelectedSongs.add(mSongss.get(position));
-				mBOK.setEnabled(true);
-			}
-		});
-		
-		mBOK.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-                //mDadsPlayer.setMSongs(mSelectedSongs);
-                mSelectedSongs.clear();
-				dialog.dismiss();
-            }
-		});
-		
-		mCancel.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-                mSelectedSongs.clear();
-			    dialog.dismiss();
-		    }
-		});
-			
-		dialog.show();
-	}
     
     public void test(View v) {
         if(debug) {
@@ -546,23 +457,5 @@ public class MainActivity extends Activity {
         
         pPlaylist.debugSongsOutput();
     }
-    
-    public void test2(Playlist mPlaylist) {
-        //Test run by hitting playAll
-        if(debug){
-            System.out.println("MainActivity: test2");
-        }
-        
-        Intent mIntent = new Intent(this,PlaylistEditor.class);
-        
-        mIntent.putExtra("playlist", mPlaylist);
-        mIntent.putExtra("activePlaylist", true);
-        mIntent.putExtra("playlistName", "Test Playlist");
-        
-        try {
-            startActivity(mIntent);
-        } catch(Exception e) {
-            System.out.println(e);
-        }
-    }
+   
 }
