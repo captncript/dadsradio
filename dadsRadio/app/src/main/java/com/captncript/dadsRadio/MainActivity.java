@@ -67,10 +67,10 @@ public class MainActivity extends Activity {
 	
 	EditText et = null;
 	private Button pPauseButton = null;
-	
+	Button mButton = null;
+    
 	DadsPlayer mDadsPlayer;
     DadsPlayer.LocalBinder binder;
-	Button mButton = null;
 	
 	boolean mBound = false;
 	boolean mIsPaused = false;
@@ -80,7 +80,6 @@ public class MainActivity extends Activity {
     String songName = new String(); // Remove?
     
 	private Handler mHandler = null;
-	private ArrayList<String> pDirs = new ArrayList<String>();
 	private Playlist pPlaylist;
     
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -193,8 +192,7 @@ public class MainActivity extends Activity {
 
 		setContentView(R.layout.main);
 		
-        Intent intent = new Intent(this,DadsPlayer.class);
-        startService(intent);
+        playerStarter();
         
 		FragmentManager fm = getFragmentManager();
 		pSV = (SteadyVariables)fm.findFragmentByTag("ps");
@@ -225,6 +223,31 @@ public class MainActivity extends Activity {
 		} else {
 			mBound = true;
 		}
+        
+        mHandler = new Handler() { //Sets up handler to adjust ui when the player wants
+            @Override
+            public void handleMessage(Message msg) {
+                switch(msg.what) {
+                    case PAUSE:
+                        if(mIsPaused == false) {
+                            et.setText("Paused");
+                            mIsPaused = true;
+                        } else {
+                            et.setText(songName);
+                            mIsPaused = false;
+                        }
+                        break;
+
+                    case SONG_NAME: //Called to change the name displayed for the song
+                        Bundle mBundle = msg.getData();
+                        songName = mBundle.getString("name");
+                        et.setText(songName);
+                        break;
+                }
+            }
+        };
+
+        pSV.setPHandler(mHandler);
     }
 
     @Override
@@ -249,6 +272,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onStart() {
+        //TODO: move binding and handler to onCreate and save the variables to the fragment
         super.onStart();
         if(debug) {
             System.out.println("MainActivity:onStart");
@@ -260,31 +284,6 @@ public class MainActivity extends Activity {
         if(intent.getFlags() == 0) {      //Causes this to only run on activity change
             pPlaylist = passedVals.getParcelable("playlist");
         }
-        
-        mHandler = new Handler() { //Sets up handler to adjust ui when the player wants
-            @Override
-            public void handleMessage(Message msg) {
-                switch(msg.what) {
-                    case PAUSE:
-                        if(mIsPaused == false) {
-                            et.setText("Paused");
-                            mIsPaused = true;
-                        } else {
-                            et.setText(songName);
-                            mIsPaused = false;
-                        }
-                        break;
-
-                    case SONG_NAME: //Called to change the name displayed for the song
-                        Bundle mBundle = msg.getData();
-                        songName = mBundle.getString("name");
-                        et.setText(songName);
-                        break;
-                }
-            }
-        };
-        
-        pSV.setPHandler(mHandler);
         
         startBinding();
         
@@ -375,6 +374,11 @@ public class MainActivity extends Activity {
         allSongs.setHandler(playAllHandler);
         allSongs.setHandlerCode(PLAY_ALL_RANDOM);
         getLoaderManager().initLoader(0,null,allSongs); //Starts the cursor loader finding music
+    }
+    
+    private void playerStarter() {
+        Intent intent = new Intent(this, DadsPlayer.class);
+        startService(intent);
     }
     
     public void playlist(View v) { //name of class consider renaming

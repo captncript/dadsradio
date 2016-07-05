@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import android.widget.Toast;
+import android.os.AsyncTask;
 
 
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
@@ -346,31 +347,18 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         this.currentPlaylist = playlist;
     }
     
-	public void cleanUp() {
-		if(MainActivity.debug) {
-            System.out.println("DadsPlayer: cleanUp");
-		}
+	private void cleanUp() {
+		Toast.makeText(this,"End of Playlist",Toast.LENGTH_LONG).show();
         
-        if(mp1 != null) {
-			mp1.release();
-			mp1 = null;
-		}
-		if(mp2 != null) {
-			mp2.release();
-			mp2 = null;
-		}
+        songPlaying = 0;
+        
+        mp1.reset();
+        mp2.reset();
+        
         isM1Playing = false;
         isM2Playing = false;
-        pIsM1Paused = false;
+		pIsM1Paused = false;
         pIsM2Paused = false;
-        songPlaying = 0;
-		System.out.println("DadsPlayer: clean");
-		
-		try {
-			Thread.currentThread().join(100);
-		} catch (InterruptedException e) {
-			System.out.println("Interrupted: " + e.toString());
-		}
-		
 	}
+    
 }
