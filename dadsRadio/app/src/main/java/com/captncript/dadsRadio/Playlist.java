@@ -51,20 +51,12 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
     public void addSong(Song song) {
         //song is the Song variable to be added to the pSongs ArrayList
         //pCount is updated by adding 1
-        if(MainActivity.debug) {
-            System.out.println("Playlist:addSong");
-        }
-        
         pSongs.add(song);
         pCount++;
     }
     
     public void addSong(ArrayList<Song> mSongs) {
         //Allows arraylists of songs to be added to a playlist at once
-        if(MainActivity.debug) {
-            System.out.println("Playlist:addSong");
-        }
-        
         for(Song s : mSongs) {
             pSongs.add(s);
             pCount++;
@@ -104,10 +96,6 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if(MainActivity.debug) {
-            System.out.println("Playlist:onCreateLoader");
-        }
-        
         Uri mUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = null;  // TODO: update this to the pieces I need
         String selection = "is_music = 1"; //This has the query only return music instead of all audii files
@@ -119,10 +107,6 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(MainActivity.debug) {
-            System.out.println("Playlist:onLoadFinished");
-        }
-        
         this.cursor = data;
         
         Song song;
@@ -183,10 +167,6 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
         //Removes a Song from pSongs ArrayList
         //Checks to make sure a song exists before an attemot is made
         //decreases pCount by 1 if Song is removed
-        if(MainActivity.debug) {
-            System.out.println("Playlist:removeSong");
-        }
-        
         if(pCount >= 1) {
             pSongs.remove(position);
             
@@ -211,10 +191,6 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
     
     private void newPlaylist() {
         //TODO: implement this
-        if(MainActivity.debug) {
-            System.out.println("Playlist:newPlaylist");
-        }
-        
         PlaylistDatabase playlistDB = new PlaylistDatabase(pApplicationContext,pName);
         SQLiteDatabase db = playlistDB.getWritableDatabase();
         
@@ -265,10 +241,6 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
     
     public void debugSongsOutput() {
         // TODO: change name
-        if(MainActivity.debug) {
-            System.out.println("Playlist:debugSongsOutput");
-        }
-        
         System.out.println("Song count: " + pCount);
         
         for(Song s : pSongs) {
