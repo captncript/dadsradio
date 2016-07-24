@@ -2,23 +2,4 @@ onCreate
 MainActivity:onStart
 MainActivity:StartBinding
 MainActivity:mConnection:onServiceConnected
-MainActivity:Play
-MainActivity:Start Playing
-DadsPlayer:dadPlay
-dadsplayer:onPrepared
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-dadsplayer:onPrepared
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-dadsplayer:onPrepared
-MainActivity:nextSong
-DadsPlayer:Next song
-DadsPlayer:songChange
-MainActivity:Play
-MainActivity:Start Playing
-DadsPlayer:dadPlay
-dadsplayer:onPrepared
 MainActivity:getOutput
