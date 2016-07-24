@@ -95,10 +95,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-        if(MainActivity.debug) {
-            System.out.println("dadsplayer:onPrepared");
-        }
-        
 		pIsPrepared = true; //TODO: is this used?
 		
 		//Calls method/function mp not service mp
@@ -117,10 +113,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
 	@Override
 	public boolean onError(MediaPlayer p1, int p2, int p3) {
-		if(MainActivity.debug) {
-            System.out.println("error with a mediaPlayer object");
-        }
-        
         aSyncError = "onError: error caught by listener";
 		
         return false;
@@ -129,10 +121,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		//This will play the next song in the succession
-		if(MainActivity.debug) {
-            System.out.println("onCompletion");
-		}
-        
 		nextSong();
 	}
 
@@ -142,10 +130,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     }
 	
 	public void pause() {
-        if(MainActivity.debug) {
-            System.out.println("DadsPlayer:pause");
-        }
-        
 		Message msg = null;
 		
 		if(isM1Playing) {
@@ -175,30 +159,18 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	}
 		
     public void nextSong() {
-        if(MainActivity.debug) {
-            System.out.println("DadsPlayer:Next song");
-        }
-            
         songPlaying++;
         
         songChange();
     }
     
     public void prevSong() {
-        if(MainActivity.debug) {
-            System.out.println("DadsPlayer:Prev song");
-        }
-        
         songPlaying--;
         
         songChange();
     }
     
     public void songChange() {
-        if(MainActivity.debug) {
-            System.out.println("DadsPlayer:songChange");
-        }
-        
         if(isM1Playing) {
             //Repeated make it a function?
 
@@ -282,10 +254,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     }
     
 	public String dadPlay() {
-        if(MainActivity.debug) {
-            System.out.println("DadsPlayer:dadPlay");
-		}
-        
         if(isPlaying()) {
             mp1.stop();
             mp2.stop();
