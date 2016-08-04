@@ -8,8 +8,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.widget.TextView;
+import android.util.Log;
 import android.widget.Toast;
+import com.captncript.dadsRadio.MainActivity;
 import java.io.IOException;
 
 
@@ -106,7 +107,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			isM1Playing = false;
 			isM2Playing = true;
 		} else {
-			System.out.println("Media player equation issues");
+			Log.e(MainActivity.TAG,"MediaPlayer issues");
 		}
 		
 		mp.start();
@@ -155,7 +156,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		    msg = Message.obtain(pHandler, PAUSE);
 		    msg.sendToTarget();
 		} catch(Exception e) {
-			System.out.println(e);
+			Log.e(MainActivity.TAG,e.toString());
 		}
 	}
 		
@@ -184,13 +185,13 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     pIsComplete = true;
                 }
             } catch (SecurityException e) {
-                System.out.println("mp2 set security: " + e.toString());
+                Log.e(MainActivity.TAG,e.toString());
             } catch (IllegalArgumentException e) {
-                System.out.println("mp2 set illegalArgument: " + e.toString());
+                Log.e(MainActivity.TAG,e.toString());
             } catch (IllegalStateException e) {
-                System.out.println("mp2 set IllegalState: " + e.toString());
+                Log.e(MainActivity.TAG,e.toString());
             } catch (IOException e) {
-                System.out.println("mp2 set io: " + e.toString());
+                Log.e(MainActivity.TAG,e.toString());
             }
 
             try {
@@ -200,7 +201,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     mp2.prepare();
                 }
             } catch (IllegalStateException e) {
-                System.out.println("mp2 prepare: " + e.toString());
+                Log.e(MainActivity.TAG,e.toString());
             } catch (IOException e) {
                 System.out.println("mp2 prepare: " + e.toString());
             }
