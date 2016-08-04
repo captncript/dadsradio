@@ -155,8 +155,6 @@ public class MainActivity extends Activity {
             mDadsPlayer = pSV.getPDadsPlayer();
             mHandler = pSV.getPHandler();
             mConnection = pSV.getPConnection();
-            mIsPaused = savedInstanceState.getBoolean("paused"); //TODO: Remove
-            System.out.print(pSV.getOutput());
 		}
         
 		if(mDadsPlayer == null) {
@@ -201,8 +199,6 @@ public class MainActivity extends Activity {
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        // TODO: why is main tracking if the player is paused?
-        outState.putBoolean("paused", mIsPaused); //TODO: remove
         pSV.setOutput(getOutput());
 
         super.onSaveInstanceState(outState);
@@ -320,7 +316,7 @@ public class MainActivity extends Activity {
         try {
             startActivity(mIntent);
         } catch(Exception e) {
-            System.out.println(e);
+            Log.e(TAG,e.toString());
         }
     }
     
@@ -337,7 +333,7 @@ public class MainActivity extends Activity {
 		try {
 			bindService(mIntent,mConnection,Context.BIND_AUTO_CREATE);
 		} catch(Exception e) {
-			System.out.println(e);
+			Log.e(TAG,e.toString());
 		}
 	}
 	
@@ -348,12 +344,12 @@ public class MainActivity extends Activity {
 				@Override
 				public void run() {
 					try{
-						String errorReport = mDadsPlayer.dadPlay(); //foo receives error messages TODO: change the name
+						String errorReport = mDadsPlayer.dadPlay(); //errorReport receives error messages TODO: change the name
 						if(errorReport != null) {
-							System.out.println("Errors with prep: " + errorReport);
+							Log.e(TAG,errorReport);
 						}
 					} catch(Exception e) {
-						System.out.println(e);
+						Log.e(TAG,e.toString());
 					}
 				}
 			}).start();
