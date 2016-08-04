@@ -58,10 +58,6 @@ public class PlaylistEditor extends Activity {
         //This runs when called activity is started by another activity
         super.onStart();
         
-        if(MainActivity.debug) {
-            System.out.println("playlistEditor:onStart");
-        }
-        
         setContentView(R.layout.playlist);
         
         pTV = (TextView)findViewById(R.id.playlistName);
@@ -101,10 +97,6 @@ public class PlaylistEditor extends Activity {
     }
     
     private void loadAllSongs() {
-        if(MainActivity.debug) {
-            System.out.println("PlaylistEditor: loadAllSongs");
-        }
-        
         //This will populate the left layout
         //allSongs with all songs on the system
         final Cursor mCursor = playlistOfAllSongs.getCursor();
@@ -119,10 +111,6 @@ public class PlaylistEditor extends Activity {
         allSongsList.setOnItemClickListener(new OnItemClickListener() {
             
             public void onItemClick(AdapterView<?> av, View view,int position, long id) {
-                if(MainActivity.debug) {
-                    System.out.println("PlaylistEditor:allSongsItemClick");
-                }
-                
                 Song toAdd = new Song();
                 
                 mCursor.moveToPosition(position);
@@ -138,9 +126,6 @@ public class PlaylistEditor extends Activity {
     }
     
     private void loadPlaylist() {
-        if(MainActivity.debug) {
-            System.out.println("PlaylistEditor:loadPlayist");
-        }
         //Fill in right panel with current playlist
         
         ArrayList<Song> allSongs = new ArrayList<Song>();
@@ -162,10 +147,6 @@ public class PlaylistEditor extends Activity {
         
         pLV2.setOnItemClickListener(new OnItemClickListener() {
                 public void onItemClick(AdapterView<?> av, View view,int position, long id) {
-                    if(MainActivity.debug) {
-                        System.out.println("PlaylistEditor:loadPlaylistItemClick");
-                    }
-                    
                     displayNames.remove(position);
                     playlistNames.notifyDataSetChanged();
                     
@@ -175,10 +156,6 @@ public class PlaylistEditor extends Activity {
     }
     
     public void save(View view) {
-        if(MainActivity.debug) {
-            System.out.println("PlaylistEditor:save");
-        }
-        
         pPlaylist.write();
         
         goToMain();
@@ -186,10 +163,6 @@ public class PlaylistEditor extends Activity {
     
     public void goToMain() {
         //This starts the mainActivity
-        if(MainActivity.debug) {
-            System.out.println("PlaylistEditor:goToMain");
-        }
-        
         Bundle toPass = new Bundle();
         Intent intent = new Intent(this,MainActivity.class);
         
@@ -202,9 +175,6 @@ public class PlaylistEditor extends Activity {
     }
     
     public void cancel(View view) {
-        if(MainActivity.debug) {
-            System.out.println("PlaylistEditor:cancel");
-        }
         // TODO: playlist change is remaining
         pPlaylist = originalPlaylist;
         goToMain();

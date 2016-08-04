@@ -6,7 +6,7 @@
 	android:orientation="vertical">
 	<EditText
 		android:id="@+id/display"
-		android:text="Testing"
+		android:text=""
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" 
 		android:background="#ffffff" />

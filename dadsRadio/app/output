@@ -1,5 +1,1 @@
 onCreate
-MainActivity:onStart
-MainActivity:StartBinding
-MainActivity:mConnection:onServiceConnected
-MainActivity:getOutput

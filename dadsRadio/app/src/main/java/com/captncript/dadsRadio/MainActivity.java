@@ -1,7 +1,6 @@
 package com.captncript.dadsRadio;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,30 +12,21 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
 
 /*
 	TODO:
     07-05-16
     19:00
 
-   -Add testing control to improve performance
+   -Add testing to improve performance
    -Add voice control
    -Make sure only one player can be active at a time
    -Test against sound interruptions
@@ -45,8 +35,6 @@ import java.util.Collections;
 */
 
 public class MainActivity extends Activity {
-	public static final boolean debug = true;
-    
     private SteadyVariables pSV;
 
 	public PrintStream ps;
@@ -66,8 +54,6 @@ public class MainActivity extends Activity {
     public static final int PLAY_ALL_RANDOM = 0;
 	
 	EditText et = null;
-	private Button pPauseButton = null;
-	Button mButton = null;
     
 	DadsPlayer mDadsPlayer;
     DadsPlayer.LocalBinder binder;
@@ -157,7 +143,6 @@ public class MainActivity extends Activity {
 		pSV = (SteadyVariables)fm.findFragmentByTag("ps");
 		
 		et =  (EditText)findViewById(R.id.display);
-		pPauseButton = (Button)findViewById(R.id.pause);
 		
         if(pSV == null) { //Only functions on state change does not work across activities
             pSV = new SteadyVariables();
@@ -170,15 +155,12 @@ public class MainActivity extends Activity {
             mDadsPlayer = pSV.getPDadsPlayer();
             mHandler = pSV.getPHandler();
             mConnection = pSV.getPConnection();
-            mIsPaused = savedInstanceState.getBoolean("paused");
+            mIsPaused = savedInstanceState.getBoolean("paused"); //TODO: Remove
             System.out.print(pSV.getOutput());
 		}
         
 		if(mDadsPlayer == null) {
             outputSetup();
-            if(debug) {
-                System.out.println("onCreate");
-            }
 		} else {
 			mBound = true;
 		}
@@ -188,7 +170,7 @@ public class MainActivity extends Activity {
             public void handleMessage(Message msg) {
                 switch(msg.what) {
                     case PAUSE:
-                        if(mIsPaused == false) {
+                        if(mIsPaused == false) { //TODO: Remove
                             et.setText("Paused");
                             mIsPaused = true;
                         } else {
@@ -220,7 +202,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         // TODO: why is main tracking if the player is paused?
-        outState.putBoolean("paused", mIsPaused);
+        outState.putBoolean("paused", mIsPaused); //TODO: remove
         pSV.setOutput(getOutput());
 
         super.onSaveInstanceState(outState);
@@ -229,6 +211,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         //TODO: move binding to onCreate and save the variables to the fragment
+        //TODO: call dadsPlayer to have it set the display text
         super.onStart();
         
         Intent intent = getIntent();
@@ -244,6 +227,7 @@ public class MainActivity extends Activity {
             System.out.println("connection null");
             mConnection = pSV.getPConnection();
         }
+        //TODO: see if asynctask can be used to check variable
     }
 
     @Override
@@ -277,13 +261,13 @@ public class MainActivity extends Activity {
     
     public void play(View v) {
         // TODO: if songs already playing do nothing
-        if(mIsPaused == false) { //This needs to be handled in dadsPlayer
+        if(mIsPaused == false) { //TODO: remove
             if(pPlaylist != null) {
                 mDadsPlayer.setPlaylist(pPlaylist);
             }
             startPlaying();
         } else {
-            mIsPaused = false;
+            mIsPaused = false; //TODO: remove
             mDadsPlayer.pause();
         }
 	}
@@ -341,7 +325,6 @@ public class MainActivity extends Activity {
     }
     
     public void prevSong(View v) {
-        
         mDadsPlayer.prevSong();
     }
 	
@@ -360,7 +343,7 @@ public class MainActivity extends Activity {
 	
 	private void startPlaying() {
         //play() MUST have been called first
-		
+		//TODO: consider handling this a different way
 		new Thread(new Runnable() { //Creates new thread to host the player
 				@Override
 				public void run() {

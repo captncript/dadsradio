@@ -9,11 +9,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.widget.TextView;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import android.widget.Toast;
-import android.os.AsyncTask;
+import java.io.IOException;
 
 
 public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListener, 
@@ -24,11 +21,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	MediaPlayer mp1 = null;
 	MediaPlayer mp2 = null;
-	TextView tv = null;
 	
 	private boolean pIsComplete = false;
-	private boolean pIsM1Paused = false;
-	private boolean pIsM2Paused = false;
 	private boolean pIsPrepared = false;
 	
 	private String aSyncError = null;
@@ -41,13 +35,20 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	
 	private boolean isM1Playing = false;
 	private boolean isM2Playing = false;
-	
+	private boolean IsM1Paused = false;
+	private boolean IsM2Paused = false;
+    
 	private Handler pHandler = null;
     
     private Playlist currentPlaylist;
+    private int playerState = 0; //0 = not running;1 = currently playing; 2 = paused
 	
     public void clearPlaylist() {
         currentPlaylist.clear();
+    }
+    
+    public int getPlayerState() {
+        return playerState;
     }
     
 	public boolean getPIsPrepared() {
@@ -133,20 +134,20 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		Message msg = null;
 		
 		if(isM1Playing) {
-			pIsM1Paused = true;
+			IsM1Paused = true;
 			isM1Playing = false;
 			mp1.pause();
 		} else if(isM2Playing) {
 			mp2.pause();
-			pIsM2Paused = true;
+			IsM2Paused = true;
 			isM2Playing = false;
-		} else if(pIsM1Paused) {
+		} else if(IsM1Paused) {
 			mp1.start();
-			pIsM1Paused = false;
+			IsM1Paused = false;
 			isM1Playing = true;
-		} else if(pIsM2Paused) {
+		} else if(IsM2Paused) {
 			mp2.start();
-			pIsM2Paused = false;
+			IsM2Paused = false;
 			isM2Playing = true;
 		}
 		
@@ -195,12 +196,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             try {
                 if(!pIsComplete) {
                     //Done in multiple places make it a function
-                    Bundle bundle = new Bundle();
-                    bundle.putString("name",currentPlaylist.getSong(songPlaying).getName());
-
-                    Message msg = Message.obtain(pHandler,SONG_NAME); //Displays the songs name
-                    msg.setData(bundle);
-                    msg.sendToTarget();
+                    setSongDisplay();
                     mp2.prepare();
                 }
             } catch (IllegalStateException e) {
@@ -233,12 +229,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             
             try {
                 if(!pIsComplete) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("name",currentPlaylist.getSong(songPlaying).getName()); //Switch to playlist
-
-                    Message msg = Message.obtain(pHandler, SONG_NAME);
-                    msg.setData(bundle);
-                    msg.sendToTarget();
+                    setSongDisplay();
                     mp1.prepare();
                 }
             } catch (IllegalStateException e) {
@@ -254,7 +245,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     }
     
 	public String dadPlay() {
-        if(isPlaying()) {
+        playerState = 1; //TODO: remove is for testing only
+        if(isPlaying()) { //TODO: fix handling of play
             mp1.stop();
             mp2.stop();
         }
@@ -281,9 +273,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
 
 		try {
-			mp1.setDataSource(currentPlaylist.getSong(0).getSource()); //Switch to playlist
+			mp1.setDataSource(currentPlaylist.getSong(0).getSource());
             Bundle bundle = new Bundle();
-            bundle.putString("name",currentPlaylist.getSong(0).getName()); //Switch to playlist
+            bundle.putString("name",currentPlaylist.getSong(0).getName());
             
             Message msg = Message.obtain(pHandler,SONG_NAME);
             msg.setData(bundle);
@@ -315,6 +307,15 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         this.currentPlaylist = playlist;
     }
     
+    public void setSongDisplay() {
+        Bundle b = new Bundle();
+        b.putString("name",currentPlaylist.getSong(songPlaying).getName());
+        
+        Message msg = Message.obtain(pHandler,SONG_NAME);
+        msg.setData(b);
+        msg.sendToTarget();
+    }
+    
 	private void cleanUp() {
 		Toast.makeText(this,"End of Playlist",Toast.LENGTH_LONG).show();
         
@@ -325,8 +326,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         
         isM1Playing = false;
         isM2Playing = false;
-		pIsM1Paused = false;
-        pIsM2Paused = false;
+		IsM1Paused = false;
+        IsM2Paused = false;
 	}
     
 }
