@@ -135,8 +135,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     }
 	
 	public void pause() {
-		Message msg = null;
-		
+        // TODO: add display updating support
 		if(isM1Playing) {
 			IsM1Paused = true;
 			isM1Playing = false;
@@ -157,13 +156,6 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 			IsM2Paused = false;
 			isM2Playing = true;
             playerState = 1;
-		}
-		
-		try {
-		    msg = Message.obtain(pHandler, PAUSE);
-		    msg.sendToTarget();
-		} catch(Exception e) {
-			Log.e(MainActivity.TAG,e.toString());
 		}
 	}
 		
@@ -254,54 +246,56 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     
 	public String dadPlay() {
         // TODO: PlayerState can enter as 0,1,2 Handle each case
+        String mPrepped = null;
         
-        if(playerState == 1 || playerState == 2) { //TODO: fix handling of play
+        if(playerState == 1) { //TODO: fix handling of play
             mp1.stop();
             mp2.stop();
         }
         
-        playerState = 1;
-        
-        String mPrepped = null;
+        if(playerState == 2) {
+            pause();
+        } else {
+            playerState = 1;
 		
-        pIsComplete = false;
+            pIsComplete = false;
         
-		//Initialize mp1
-		mp1 = new MediaPlayer();
+		    //Initialize mp1
+		    mp1 = new MediaPlayer();
 		
-		//Setup mp1 Listeners
-		mp1.setOnErrorListener(this);
-		mp1.setOnPreparedListener(this);
-		mp1.setOnCompletionListener(this);
+		    //Setup mp1 Listeners
+		    mp1.setOnErrorListener(this);
+		    mp1.setOnPreparedListener(this);
+		    mp1.setOnCompletionListener(this);
 
-		//Initialize mp2
-		mp2 = new MediaPlayer();
+		    //Initialize mp2
+		    mp2 = new MediaPlayer();
 
-		//Setup mp2 Listeners
-		mp2.setOnErrorListener(this);
-		mp2.setOnPreparedListener(this);
-		mp2.setOnCompletionListener(this);
+		    //Setup mp2 Listeners
+		    mp2.setOnErrorListener(this);
+		    mp2.setOnPreparedListener(this);
+		    mp2.setOnCompletionListener(this);
 
 
-		try {
-			mp1.setDataSource(currentPlaylist.getSong(0).getSource());
-            Bundle bundle = new Bundle();
-            bundle.putString("name",currentPlaylist.getSong(0).getName());
+		    try {
+			    mp1.setDataSource(currentPlaylist.getSong(0).getSource());
+                Bundle bundle = new Bundle();
+                bundle.putString("name",currentPlaylist.getSong(0).getName());
             
-            Message msg = Message.obtain(pHandler,SONG_NAME);
-            msg.setData(bundle);
-            msg.sendToTarget();
-            mp1.prepare();
-		} catch (SecurityException e) {
-			mPrepped = "Security: " + e.toString();
-		} catch (IllegalArgumentException e) {
-			mPrepped = "IllegalArgument: " + e.toString();
-		} catch (IllegalStateException e) {
-			mPrepped = "IllegalState: " + e.toString();
-		} catch (IOException e) {
-			mPrepped = "IO: " + e.toString();
-		}
-        
+                Message msg = Message.obtain(pHandler,SONG_NAME);
+                msg.setData(bundle);
+                msg.sendToTarget();
+                mp1.prepare();
+		    } catch (SecurityException e) {
+			    mPrepped = "Security: " + e.toString();
+		    } catch (IllegalArgumentException e) {
+			    mPrepped = "IllegalArgument: " + e.toString();
+		    } catch (IllegalStateException e) {
+			    mPrepped = "IllegalState: " + e.toString();
+		    } catch (IOException e) {
+			    mPrepped = "IO: " + e.toString();
+		    }
+        }
 		return (mPrepped);
 	}
 	
