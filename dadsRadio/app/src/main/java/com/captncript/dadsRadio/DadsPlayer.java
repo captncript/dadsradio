@@ -18,6 +18,7 @@ public class DadsPlayer extends Service implements MediaPlayer.OnPreparedListene
 MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	// TODO: this needs some serious documentation
     // Possibly change name of class to PlayerManager
+    // Maybe move threading here?
 	private final IBinder mIBinder = new LocalBinder();
 	
 	MediaPlayer mp1 = null;
@@ -42,7 +43,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 	private Handler pHandler = null;
     
     private Playlist currentPlaylist;
-    private int playerState = 0; //0 = not running;1 = currently playing; 2 = paused
+    private int playerState = 0; //0 = not running
+                                 //1 = currently playing
+                                 //2 = paused
 	
     public void clearPlaylist() {
         currentPlaylist.clear();
@@ -137,19 +140,23 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 		if(isM1Playing) {
 			IsM1Paused = true;
 			isM1Playing = false;
+            playerState = 2;
 			mp1.pause();
 		} else if(isM2Playing) {
 			mp2.pause();
 			IsM2Paused = true;
 			isM2Playing = false;
+            playerState = 2;
 		} else if(IsM1Paused) {
 			mp1.start();
 			IsM1Paused = false;
 			isM1Playing = true;
+            playerState = 1;
 		} else if(IsM2Paused) {
 			mp2.start();
 			IsM2Paused = false;
 			isM2Playing = true;
+            playerState = 1;
 		}
 		
 		try {
@@ -246,6 +253,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     }
     
 	public String dadPlay() {
+        // TODO: PlayerState can enter as 0,1,2 Handle each case
         playerState = 1; //TODO: remove is for testing only
         if(isPlaying()) { //TODO: fix handling of play
             mp1.stop();
@@ -306,6 +314,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             songPlaying = 0; //Resets counter for the new playlist
         }
         this.currentPlaylist = playlist;
+        playerState = 0;
     }
     
     public void setSongDisplay() {
@@ -317,7 +326,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         msg.sendToTarget();
     }
     
-	private void cleanUp() {
+	private void cleanUp() { //TODO: rename
 		Toast.makeText(this,"End of Playlist",Toast.LENGTH_LONG).show();
         
         songPlaying = 0;
@@ -329,6 +338,8 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         isM2Playing = false;
 		IsM1Paused = false;
         IsM2Paused = false;
+        
+        playerState = 0;
 	}
     
 }

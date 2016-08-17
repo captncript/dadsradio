@@ -27,7 +27,7 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
         An object of type Playlist will functiin as parcelable
         
         TODO: Manage playlist database interaction(adding, removing, indexing)
-              Might need to make parcelable
+              
     */
     
     //For parcel flattening and building *****************
