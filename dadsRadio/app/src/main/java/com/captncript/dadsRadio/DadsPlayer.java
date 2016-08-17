@@ -245,10 +245,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     }
     
 	public String dadPlay() {
-        // TODO: PlayerState can enter as 0,1,2 Handle each case
         String mPrepped = null;
         
-        if(playerState == 1) { //TODO: fix handling of play
+        if(playerState == 1) {
             mp1.stop();
             mp2.stop();
         }
