@@ -9,15 +9,6 @@ public class SteadyVariables extends Fragment {
 	private DadsPlayer pDadsPlayer;
 	private Handler pHandler;
 	private ServiceConnection pConnection;
-    private String output;
-   
-    public void setOutput(String output) {
-        this.output = output;
-    }
-
-    public String getOutput() {
-        return output;
-    }
 
 	public void setPConnection(ServiceConnection pConnection) {
 		this.pConnection = pConnection;

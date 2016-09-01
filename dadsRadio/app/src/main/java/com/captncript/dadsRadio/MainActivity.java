@@ -23,15 +23,14 @@ import java.io.PrintStream;
 
 /*
 	TODO:
-    07-05-16
-    19:00
+    09-01-16
+    14:00
 
    -Add testing to improve performance
    -Add voice control
    -Make sure only one player can be active at a time
    -Test against sound interruptions
    -Correct active playlist management(nextSong crashes if playlist is changed)
-   -Remove System.out.println and replace with Log statements
 */
 
 public class MainActivity extends Activity {
@@ -48,8 +47,6 @@ public class MainActivity extends Activity {
     public static final int PAUSE = 0;
     public static final int SONG_NAME = 1;
 	
-	private static final String OUT_FILE_PATH = "/storage/emulated/0/AppProjects/DadsRadio/dadsradio/app/output";
-    
     //playAllHandler Case(s)
     public static final int PLAY_ALL_RANDOM = 0;
 	
@@ -62,6 +59,7 @@ public class MainActivity extends Activity {
 	boolean mIsPaused = false;
 	boolean mFragExists = false;
 	boolean mReOpened = false;
+    boolean setPlaylist = false;
     
     String songName = new String(); // Remove?
     
@@ -78,13 +76,15 @@ public class MainActivity extends Activity {
             mDadsPlayer = binder.getService();
 			mBound = true;
 			mDadsPlayer.setHandler(mHandler);
+            mDadsPlayer.setSongDisplay();
             
 			pSV.setPDadsPlayer(mDadsPlayer);
 			
 			String mErr = mDadsPlayer.getASyncError();
 			if(mErr != null) {
-				System.out.println("Async errors: " + mErr);
-			}
+		        Log.e(TAG,"Async error");
+                
+            }
 		}
         
         @Override
@@ -92,36 +92,6 @@ public class MainActivity extends Activity {
             mBound = false;
         }
 	};
-    
-    public String getOutput() {
-        /* 
-        Grabs up to 500 characters 
-        from the output file and saves
-        to be written when file is
-        recreated. Called from 
-        onSaveInstanceState */
-    
-        String output = new String();
-        char[] buffer = new char[500];
-        File file = new File(OUT_FILE_PATH);
-        
-        try {
-            FileReader fr = new FileReader(file);
-            fr.read(buffer);
-        } catch (FileNotFoundException e) {
-            Log.e("File Read", "Can't find the file");
-        } catch (IOException e) {
-            Log.e("File Read", "io exception");
-        }
-
-        if(buffer != null) {
-            for(char c : buffer) {
-                output += c;
-            }
-        }
-        
-        return output;
-    }
 
     public void nextSong(View v) {
         if(mBound) {
@@ -146,9 +116,6 @@ public class MainActivity extends Activity {
 		
         if(pSV == null) { //Only functions on state change does not work across activities
             pSV = new SteadyVariables();
-            if(pSV.getOutput() != null) {
-                Log.e("DadsRadio", "has output");
-            }
             fm.beginTransaction().add(pSV, "ps").commit();
             pSV.setPConnection(mConnection);
         } else {
@@ -157,26 +124,10 @@ public class MainActivity extends Activity {
             mConnection = pSV.getPConnection();
 		}
         
-		if(mDadsPlayer == null) {
-            outputSetup();
-		} else {
-			mBound = true;
-		}
-        
         mHandler = new Handler() { //Sets up handler to adjust ui when the player wants
             @Override
             public void handleMessage(Message msg) {
                 switch(msg.what) {
-                    case PAUSE:
-                        if(mIsPaused == false) { //TODO: Remove
-                            et.setText("Paused");
-                            mIsPaused = true;
-                        } else {
-                            et.setText(songName);
-                            mIsPaused = false;
-                        }
-                        break;
-
                     case SONG_NAME: //Called to change the name displayed for the song
                         Bundle mBundle = msg.getData();
                         songName = mBundle.getString("name");
@@ -190,21 +141,6 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onRestart() {
-        // TODO: consider if this is useful
-        super.onRestart();
-
-        outputSetup();
-    }
-    
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        pSV.setOutput(getOutput());
-
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
     protected void onStart() {
         //TODO: move binding to onCreate and save the variables to the fragment
         //TODO: call dadsPlayer to have it set the display text
@@ -213,14 +149,16 @@ public class MainActivity extends Activity {
         Intent intent = getIntent();
         Bundle passedVals = intent.getBundleExtra("all");
         
+        //TODO: make this more explicit
         if(intent.getFlags() == 0) {      //Causes this to only run on activity change
             pPlaylist = passedVals.getParcelable("playlist");
+            setPlaylist = passedVals.getBoolean("Set");
         }
         
         startBinding();
         
         if(mConnection == null) {
-            System.out.println("connection null");
+            Log.d(TAG, "connection null");
             mConnection = pSV.getPConnection();
         }
         //TODO: see if asynctask can be used to check variable
@@ -233,39 +171,16 @@ public class MainActivity extends Activity {
         super.onStop();
     }
 	
-	private void outputSetup() {
-		//DAD NOTE: This just sets up an area outside the app to view output
-		try {
-			File mFile = new File(OUT_FILE_PATH);
-			
-			ps = new PrintStream(mFile);
-
-			//DAD NOTE:
-			//This makes System.out.println(string)
-			//Send output to our file
-			System.setOut(ps);
-		} catch (FileNotFoundException e) {
-			Log.v("Output setup", e.toString());
-			et.setText("File not found");
-		}
-
-	}
-	
     public void pause(View v) {
         mDadsPlayer.pause();
     }
     
     public void play(View v) {
-        // TODO: if songs already playing do nothing
-        if(mIsPaused == false) { //TODO: remove
-            if(pPlaylist != null) {
-                mDadsPlayer.setPlaylist(pPlaylist);
-            }
-            startPlaying();
-        } else {
-            mIsPaused = false; //TODO: remove
-            mDadsPlayer.pause();
+        if(pPlaylist != null && setPlaylist) {
+            mDadsPlayer.setPlaylist(pPlaylist);
+            setPlaylist = false;
         }
+        startPlaying();
 	}
     
     public void playAll(View v) {

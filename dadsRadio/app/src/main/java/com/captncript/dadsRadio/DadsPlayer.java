@@ -202,7 +202,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             } catch (IllegalStateException e) {
                 Log.e(MainActivity.TAG,e.toString());
             } catch (IOException e) {
-                System.out.println("mp2 prepare: " + e.toString());
+                Log.e(MainActivity.TAG,"mp2 prepare: " + e.toString());
             }
             if(!pIsComplete) {
                 mp1.stop();
@@ -218,13 +218,13 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     pIsComplete = true;
                 }
             } catch (SecurityException e) {
-                System.out.println("mp1 set: " + e.toString());
+                Log.e(MainActivity.TAG,"mp1 set: " + e.toString());
             } catch (IllegalArgumentException e) {
-                System.out.println("mp1 set: " + e.toString());
+                Log.e(MainActivity.TAG,"mp1 set: " + e.toString());
             } catch (IllegalStateException e) {
-                System.out.println("mp1 set: " + e.toString());
+                Log.e(MainActivity.TAG,"mp1 set: " + e.toString());
             } catch (IOException e) {
-                System.out.println("mp1 set: " + e.toString());
+                Log.e(MainActivity.TAG,"mp1 set: " + e.toString());
             }
             
             try {
@@ -233,9 +233,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
                     mp1.prepare();
                 }
             } catch (IllegalStateException e) {
-                System.out.println("mp1 prepare: " + e.toString());
+                Log.e(MainActivity.TAG,"mp1 prepare: " + e.toString());
             } catch (IOException e) {
-                System.out.println("mp1 prepare: " + e.toString());
+                Log.e(MainActivity.TAG,"mp1 prepare: " + e.toString());
             }
             if(!pIsComplete) {
                 //rewrite this so both are grouped
@@ -248,12 +248,9 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         String mPrepped = null;
         
         if(playerState == 1) {
-            mp1.stop();
-            mp2.stop();
-        }
-        
-        if(playerState == 2) {
-            pause();
+            //Play button should cause no action in this state
+        }else if(playerState == 2) {
+            pause(); //Pause handles pausing and unpausing
         } else {
             playerState = 1;
 		
@@ -310,15 +307,19 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         }
         this.currentPlaylist = playlist;
         playerState = 0;
+        Toast.makeText(this,"Playlist set",Toast.LENGTH_SHORT).show();
     }
     
     public void setSongDisplay() {
-        Bundle b = new Bundle();
-        b.putString("name",currentPlaylist.getSong(songPlaying).getName());
+        Log.i(MainActivity.TAG,"setSongDisplay");
+        if(playerState != 0) {
+            Bundle b = new Bundle();
+            b.putString("name",currentPlaylist.getSong(songPlaying).getName());
         
-        Message msg = Message.obtain(pHandler,SONG_NAME);
-        msg.setData(b);
-        msg.sendToTarget();
+            Message msg = Message.obtain(pHandler,SONG_NAME);
+            msg.setData(b);
+            msg.sendToTarget();
+        }
     }
     
 	private void cleanUp() { //TODO: rename

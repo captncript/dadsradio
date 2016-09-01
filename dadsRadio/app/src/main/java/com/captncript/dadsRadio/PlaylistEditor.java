@@ -28,6 +28,7 @@ public class PlaylistEditor extends Activity {
     private Playlist playlistOfAllSongs = new Playlist(this);
     private Playlist originalPlaylist;
     private Context context = this;
+    private boolean setPlaylist;
     ArrayAdapter<String> playlistNames;
     
     private boolean isTemporary;
@@ -156,8 +157,11 @@ public class PlaylistEditor extends Activity {
     }
     
     public void save(View view) {
+        //Requires DadsPlayer instance
         pPlaylist.write();
-        
+        if(pPlaylist != originalPlaylist) {
+            setPlaylist = true;
+        }
         goToMain();
     }
     
@@ -168,7 +172,7 @@ public class PlaylistEditor extends Activity {
         
         toPass.putParcelable("playlist",pPlaylist);
         toPass.putBinder("binder",mainsBinder);
-        
+        toPass.putBoolean("Set", setPlaylist);
         intent.putExtra("all", toPass);
 
         startActivity(intent);
@@ -177,6 +181,8 @@ public class PlaylistEditor extends Activity {
     public void cancel(View view) {
         // TODO: playlist change is remaining
         pPlaylist = originalPlaylist;
+        setPlaylist = false;
+        
         goToMain();
     }
 }

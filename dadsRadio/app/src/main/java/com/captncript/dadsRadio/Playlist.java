@@ -13,6 +13,8 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.util.Log;
+import com.captncript.dadsRadio.MainActivity;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -241,10 +243,10 @@ public class Playlist implements LoaderManager.LoaderCallbacks<Cursor>, Parcelab
     
     public void debugSongsOutput() {
         // TODO: change name
-        System.out.println("Song count: " + pCount);
+        Log.d(MainActivity.TAG, "Song count: " + pCount);
         
         for(Song s : pSongs) {
-            System.out.println(s.getName());
+            Log.d(MainActivity.TAG, s.getName());
         }
     }
 }
