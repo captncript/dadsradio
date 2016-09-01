@@ -251,7 +251,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
             //Play button should cause no action in this state
         }else if(playerState == 2) {
             pause(); //Pause handles pausing and unpausing
-        } else {
+        }else if(currentPlaylist != null){
             playerState = 1;
 		
             pIsComplete = false;
@@ -314,6 +314,7 @@ MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
         Log.i(MainActivity.TAG,"setSongDisplay");
         if(playerState != 0) {
             Bundle b = new Bundle();
+            Log.e(MainActivity.TAG,"Running when it shouldn't");
             b.putString("name",currentPlaylist.getSong(songPlaying).getName());
         
             Message msg = Message.obtain(pHandler,SONG_NAME);
